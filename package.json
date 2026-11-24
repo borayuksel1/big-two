@@ -1,0 +1,8 @@
+{
+  "name": "big-two",
+  "version": "1.0.0",
+  "description": "Big Two card game for friends. No money, points only.",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}

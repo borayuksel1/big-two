@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Big Two</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Slab:wght@700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE occasion: a game night with friends, warm and a bit loud
+   IDEA the crimson felt of a Hong Kong card parlour table, wooden rail, gold inlay, 鋤大D printed on the cloth
+   PICTURE the table itself: four seats, the trick in the middle, your fanned hand at the rail
+   COLOUR room-dark brown ground, crimson felt, ivory cards, parlour gold for whose turn it is
+   TYPE Unbounded for names and headings, Roboto Slab for card indices, Inter for everything else
+   LAYOUT laptop: table left, scores and log in a 300px column; phone: table fills the screen, scores below */
+:root{color-scheme:dark;--bg:#130908;--ink:#f7efe3;--mut:#d4b9a7;--gold:#eab94a;--gold2:#f6d987;--line:#3a211b;--panel:#1d0f0d;--red:#c4122f;--bad:#ffb1a6;--cw:clamp(44px,5vw,72px)}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse 90% 60% at 50% 0%,#2b1411,var(--bg) 70%) fixed,var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif;overflow-x:clip}
+button{font:inherit;color:inherit}
+.app{display:grid;grid-template-rows:auto 1fr;min-height:100%}
+header{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:10px max(16px,2vw)}
+.brand{display:flex;align-items:center;gap:10px;font:800 21px/1 Unbounded,sans-serif;letter-spacing:-.02em}
+.logo{width:26px;height:36px;border-radius:5px;background:#fbf6ea;color:#1b1714;display:grid;place-items:center;font:700 13px/1 'Roboto Slab',serif;transform:rotate(-8deg);box-shadow:8px 2px 0 -2px var(--red)}
+.pill{font-size:13px;font-weight:600;color:var(--mut);padding:5px 12px;border:1px solid var(--line);border-radius:999px;white-space:nowrap}
+.pill b{color:var(--gold)}
+.hb{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.btn{min-height:44px;padding:0 18px;border-radius:999px;background:#35191500;border:1px solid #5a3128;font-weight:600;font-size:14.5px;cursor:pointer;white-space:nowrap}
+.btn:hover:not(:disabled){background:#3b1d18}
+.btn:focus-visible,.card:focus-visible,input:focus-visible{outline:3px solid var(--gold2);outline-offset:2px}
+.btn.pri{background:var(--gold);color:#2a1206;border-color:var(--gold2)}
+.btn.pri:hover:not(:disabled){background:var(--gold2)}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn.sm{min-height:36px;padding:0 13px;font-size:13.5px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;padding:0 max(16px,2vw) 16px;min-height:0}
+.felt{position:relative;min-height:max(560px,calc(100svh - 80px));border-radius:clamp(28px,9vw,150px);background:repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 5px),radial-gradient(ellipse at 50% 42%,#ad2431 0%,#8b1a25 45%,#5b0e17 100%);box-shadow:inset 0 0 0 11px #2a150f,inset 0 0 0 13px #7a4a26,inset 0 0 0 14px #2a150f,inset 0 20px 60px rgba(0,0,0,.45),0 24px 50px rgba(0,0,0,.5);padding:clamp(22px,3.2vw,40px) clamp(22px,4vw,56px);display:grid;grid-template-columns:minmax(88px,1fr) minmax(0,2.3fr) minmax(88px,1fr);grid-template-rows:auto minmax(170px,1fr) auto;grid-template-areas:". top ." "left mid right" "mine mine mine";gap:10px}
+.felt::before{content:"";position:absolute;inset:28px;border:1px dashed rgba(234,185,74,.22);border-radius:inherit;pointer-events:none}
+.top{grid-area:top;justify-self:center}.left{grid-area:left;align-self:center;justify-self:start}.right{grid-area:right;align-self:center;justify-self:end}
+.mid{grid-area:mid;display:grid;place-items:center;position:relative}
+.mark{position:absolute;inset:0;display:grid;place-items:center;font:900 clamp(54px,9vw,120px)/1 "Songti TC","PMingLiU","Noto Serif CJK TC",serif;color:rgba(246,217,135,.075);pointer-events:none;user-select:none;letter-spacing:.06em}
+.mine{grid-area:mine;display:grid;gap:6px;position:relative;z-index:1}
+.opp.bottom{justify-self:center}
+.opp{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;position:relative;z-index:1}
+.av{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:700 20px Unbounded,sans-serif;color:#2a1206;background:var(--c,#e7c9a0);border:2px solid #f6e8cc;flex:none}
+.nm{font-weight:700;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cnt{display:flex;align-items:center;gap:8px;min-height:28px}
+.backs{display:flex;padding-left:11px}
+.back{width:19px;height:27px;border-radius:3px;margin-left:-11px;border:1.5px solid #f3e3c3;background:repeating-linear-gradient(45deg,#7a1520 0 3px,#a32834 3px 6px);box-shadow:1px 1px 2px rgba(0,0,0,.4)}
+.num{font:700 17px Unbounded,sans-serif;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+.chip{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(0,0,0,.34);color:var(--mut);white-space:nowrap}
+.chip.hot{background:var(--gold);color:#2a1206}
+.chip.warn{background:#ffe6df;color:#9a0f1f}
+.chip.lose{background:#1b0d0b;color:var(--bad);border:1px solid var(--bad)}
+.chip.safe{background:rgba(246,217,135,.16);color:var(--gold2)}
+.turn .av{box-shadow:0 0 0 4px var(--gold),0 0 24px 6px rgba(234,185,74,.55);animation:pulse 1.5s ease-in-out infinite}
+.done .av{filter:saturate(.3);opacity:.7}
+@keyframes pulse{50%{box-shadow:0 0 0 4px var(--gold),0 0 8px 2px rgba(234,185,74,.3)}}
+.bub{position:absolute;top:-16px;right:-12px;font-size:30px;animation:bub 2.6s ease-out forwards;pointer-events:none;z-index:3}
+@keyframes bub{0%{transform:translateY(8px) scale(.4);opacity:0}15%{transform:none;opacity:1}80%{opacity:1}100%{transform:translateY(-26px);opacity:0}}
+.card{width:var(--cw);aspect-ratio:5/7;border-radius:calc(var(--cw)*.11);background:linear-gradient(160deg,#fffdf7,#efe7d6);color:#1b1714;position:relative;flex:none;border:1px solid #d6c9af;box-shadow:0 2px 0 rgba(0,0,0,.14),0 6px 14px rgba(0,0,0,.28);font-family:'Roboto Slab',Georgia,serif;padding:0;transition:transform .15s ease}
+.card.red{color:var(--red)}
+button.card{cursor:pointer}
+button.card:hover{transform:translateY(-7px)}
+.card.sel,.card.sel:hover{transform:translateY(-20px);box-shadow:0 0 0 3px var(--gold),0 12px 20px rgba(0,0,0,.4)}
+.ix{position:absolute;left:7%;top:4%;display:flex;flex-direction:column;align-items:center;line-height:.95}
+.ix b{font-size:calc(var(--cw)*.31);letter-spacing:-.05em}
+.ix i{font-style:normal;font-size:calc(var(--cw)*.25)}
+.ix.bt{left:auto;top:auto;right:7%;bottom:4%;transform:rotate(180deg)}
+.pip{position:absolute;inset:0;display:grid;place-items:center;font-size:calc(var(--cw)*.56);padding-top:6%}
+.hand{display:flex;justify-content:center;padding:24px 0 2px;min-height:calc(var(--cw)*1.4 + 28px)}
+.hand .card+.card{margin-left:var(--ov,6px)}
+.trick{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;z-index:1;text-align:center}
+.trick .cards{display:flex;min-height:calc(var(--cw)*1.4)}
+.trick .card+.card{margin-left:calc(var(--cw)*-.3)}
+.hand .card{touch-action:pan-y}
+.card.drag,.card.drag:hover{z-index:6;transition:none;box-shadow:0 0 0 3px var(--gold2),0 16px 26px rgba(0,0,0,.5);cursor:grabbing}
+.tbar{height:6px;border-radius:3px;background:rgba(0,0,0,.35);overflow:hidden;margin:2px 0 4px}
+.tbar i{display:block;height:100%;background:var(--gold);transition:width .2s linear}
+.tbar i.low{background:#ff6b5e}
+.count{font:800 clamp(48px,7vw,72px)/1 Unbounded,sans-serif;color:var(--gold2);font-variant-numeric:tabular-nums}
+.count.low,.chip [data-dl].low{color:#9a0f1f}
+.trick .won .card{opacity:.72;filter:saturate(.75)}
+.card.start:not(.sel){animation:flash 1s ease-in-out infinite}
+@keyframes flash{0%,100%{box-shadow:0 0 0 3px var(--gold),0 0 18px 6px rgba(246,217,135,.8)}50%{box-shadow:0 0 0 1px rgba(234,185,74,.3),0 6px 14px rgba(0,0,0,.28)}}
+.corner{position:absolute;top:clamp(20px,2.6vw,34px);left:clamp(22px,3vw,40px);z-index:4;background:rgba(20,8,7,.55)}
+.corner.armed{background:var(--gold);color:#2a1206;border-color:var(--gold2)}
+.trick.anim .card{animation:drop .36s cubic-bezier(.2,.8,.3,1.2) backwards}
+.trick.anim .card:nth-child(2){animation-delay:.04s}.trick.anim .card:nth-child(3){animation-delay:.08s}.trick.anim .card:nth-child(4){animation-delay:.12s}.trick.anim .card:nth-child(5){animation-delay:.16s}
+@keyframes drop{from{transform:translateY(46px) rotate(-6deg) scale(.85);opacity:0}}
+.tl{font-weight:700;background:rgba(0,0,0,.32);padding:7px 15px;border-radius:999px}
+.tl small{font-weight:600;color:var(--mut)}
+.sub{font-size:13.5px;color:var(--mut)}
+.lead{font:700 clamp(18px,2.2vw,24px)/1.2 Unbounded,sans-serif;max-width:22ch}
+.panel{position:relative;z-index:1;width:min(100%,460px);background:rgba(22,9,8,.8);border:1px solid rgba(234,185,74,.35);border-radius:20px;padding:20px 22px;display:grid;gap:12px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.panel h2{margin:0;font:800 clamp(22px,3vw,30px)/1.08 Unbounded,sans-serif;letter-spacing:-.02em;text-wrap:balance}
+.panel p{margin:0}
+.slots{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.slots li{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.05);font-weight:600;overflow:hidden}
+.slots li .av{width:30px;height:30px;font-size:13px;border-width:1.5px}
+.slots li.open{color:var(--mut);font-weight:400;border:1px dashed #5a3128;background:none}
+.slots span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fld{display:grid;gap:4px;font-size:13.5px;color:var(--mut);flex:1 1 160px}
+input[type=text]{font:16px Inter,sans-serif;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid #6a3a2e;background:#140807;color:var(--ink);width:100%}
+.tog{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600;min-height:44px}
+.tog input{width:20px;height:20px;accent-color:var(--gold)}
+.order{list-style:none;margin:0;padding:0;display:flex;gap:6px;flex-wrap:wrap}
+.lefthand{display:flex;--cw:34px}.lefthand .card+.card{margin-left:-12px}
+.lefthand .pip{display:none}
+.mehead{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap}
+.me{display:flex;align-items:center;gap:9px;position:relative}
+.me .av{width:38px;height:38px;font-size:15px}
+.me.turn .av{animation:pulse 1.5s ease-in-out infinite}
+.prev{font-weight:600;flex:1 1 220px;text-align:center}
+.prev.ok{color:var(--gold2)}.prev.bad{color:var(--bad)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.acts .grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;border:1px solid #5a3128;border-radius:999px;overflow:hidden}
+.seg button{min-height:36px;padding:0 12px;background:none;border:0;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--mut)}
+.seg button[aria-pressed=true]{background:#4a241d;color:var(--ink)}
+.rx{min-width:40px;min-height:40px;border-radius:50%;border:1px solid #5a3128;background:none;font-size:19px;cursor:pointer;padding:0}
+.rx:hover{background:#3b1d18}
+.banner{position:relative;z-index:2;justify-self:center;background:#1b0d0b;border:1px solid var(--gold);color:var(--gold2);border-radius:14px;padding:9px 14px;font-weight:600;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;text-align:center}
+aside{display:flex;flex-direction:column;gap:14px;max-height:calc(100svh - 80px);position:sticky;top:8px;overflow:auto}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px 17px}
+.box h3{margin:0 0 4px;font:700 15px/1.2 Unbounded,sans-serif}
+.box .sub{margin:0 0 10px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:12.5px;color:var(--mut);font-weight:600;text-align:left;padding:4px 0;border-bottom:1px solid var(--line)}
+td{padding:7px 0;border-bottom:1px solid #2a1612}
+th.n,td.n{text-align:right;font-variant-numeric:tabular-nums;padding-left:10px;white-space:nowrap}
+tr.worst td:first-child{color:var(--bad);font-weight:700}
+.log{list-style:none;margin:0;padding:0;font-size:13.5px;color:var(--mut)}
+.log li{padding:6px 0;border-bottom:1px solid #2a1612}
+.log b{color:var(--ink);font-weight:600}
+.log .r{color:#ff8f86}
+.here{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.here li{display:flex;gap:8px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:#7fd08a;flex:none}
+dialog{background:var(--panel);color:var(--ink);border:1px solid #5a3128;border-radius:20px;max-width:580px;width:calc(100% - 32px);padding:22px 24px;max-height:calc(100% - 40px)}
+dialog::backdrop{background:rgba(0,0,0,.62)}
+dialog h2{margin:0 0 10px;font:800 24px/1.1 Unbounded,sans-serif}
+dialog ul{padding-left:20px;margin:0 0 14px}dialog li{margin:5px 0}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.ladder span{padding:4px 10px;border-radius:999px;background:#2e1714;font-size:13px;font-weight:600}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#fbf6ea;color:#2a1206;font-weight:700;padding:10px 18px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:50;max-width:calc(100% - 32px);text-align:center}
+.toast[hidden]{display:none}
+@media(max-width:980px){main{grid-template-columns:minmax(0,1fr)}.felt{min-height:min(820px,calc(100svh - 76px))}aside{overflow:visible;max-height:none;position:static}}
+@media(max-width:600px){:root{--cw:clamp(40px,12vw,56px)}header{padding:10px 16px}.hb .btn{min-height:40px;padding:0 13px;font-size:13.5px}.felt{border-radius:30px;padding:20px 12px 14px;grid-template-columns:minmax(66px,.8fr) minmax(0,2fr) minmax(66px,.8fr);min-height:calc(100svh - 110px)}.felt::before{inset:12px}.av{width:40px;height:40px;font-size:15px}.nm{max-width:84px;font-size:13px}.left .backs,.right .backs{display:none}.left,.right{justify-self:stretch}.felt{gap:6px}.mid{--cw:clamp(34px,10vw,50px)}.panel{padding:16px}.slots{grid-template-columns:minmax(0,1fr)}.prev{order:3;flex-basis:100%}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="logo" aria-hidden="true">2&#9824;&#xFE0E;</span>Big Two</div>
+    <span class="pill" id="status">Setting up the table</span>
+    <div class="hb">
+      <button class="btn sm" type="button" id="modeBtn" hidden>Practice vs bots</button>
+      <button class="btn sm" type="button" id="rulesBtn">House rules</button>
+      <button class="btn sm" type="button" id="soundBtn" aria-pressed="true">Sound on</button>
+    </div>
+  </header>
+  <main>
+    <section class="felt" id="table" aria-label="Card table"></section>
+    <aside id="side"></aside>
+  </main>
+</div>
+<dialog id="rules" aria-labelledby="rulesH">
+  <h2 id="rulesH">How we play</h2>
+  <ul>
+    <li>Cards rank 3 (lowest) up to A, then 2 is the highest card.</li>
+    <li>Suits rank <b>&#9827;&#xFE0E; clubs &lt; &#9830;&#xFE0E; diamonds &lt; &#9829;&#xFE0E; hearts &lt; &#9824;&#xFE0E; spades</b>. Same rank? The higher suit wins.</li>
+    <li>Whoever holds the 3&#9827;&#xFE0E; leads first, and that first play has to include it.</li>
+    <li>Play a single, a pair, three of a kind or a five-card hand. To follow, play the same number of cards and beat what's on the table.</li>
+    <li>Each hand starts with 30 seconds to arrange your cards. Drag them into any order you like.</li>
+    <li>You get 20 seconds per turn. Run out and you pass automatically (or, if you're leading, your lowest card is played).</li>
+    <li>Pass and you're out until someone wins the round. When everyone else has passed, the last player to play leads anything.</li>
+    <li>There are no winners, only a loser. Get rid of all your cards and you're safe. Everyone else keeps playing until one person is left holding cards.</li>
+    <li>The loser takes 1 penalty point per card still in hand and shuffles the next hand.</li>
+  </ul>
+  <p class="sub">Five-card hands, weakest to strongest:</p>
+  <div class="ladder"><span>Straight</span><span>Full house</span><span>Four of a kind + 1</span><span>Straight flush</span></div>
+  <ul>
+    <li>Straights run 3-4-5-6-7 up to 10-J-Q-K-A. No 2s in straights.</li>
+    <li>No flushes: five cards of one suit only count if they also make a straight. Straights and straight flushes compare by their top card. Full houses compare by the three, four of a kind by the four.</li>
+    <li>No money and no betting. Points only, for bragging rights.</li>
+  </ul>
+  <form method="dialog"><button class="btn pri" type="submit">Got it</button></form>
+</dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+(()=>{
+const RK=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
+const RKP=['3s','4s','5s','6s','7s','8s','9s','10s','Jacks','Queens','Kings','Aces','2s'];
+const SG=['♣︎','♦︎','♥︎','♠︎'];
+const BOTS=['Kemal','Selin','Mert'];
+const ORG_MS=30000,TURN_MS=20000;
+const R=x=>x>>2, Su=x=>x&3;
+const asc=(a,b)=>a-b;
+const cname=x=>RK[R(x)]+SG[Su(x)];
+const cmpK=(a,b)=>{for(let i=0;i<Math.max(a.length,b.length);i++){const d=(a[i]??-1)-(b[i]??-1);if(d)return d}return 0};
+function cls(c){
+  const n=c.length,s=[...c].sort(asc),r=s.map(R);
+  if(n===1)return{n,t:0,k:[s[0]],name:'Single'};
+  if(n===2)return r[0]===r[1]?{n,t:0,k:[s[1]],name:'Pair'}:null;
+  if(n===3)return r[0]===r[2]?{n,t:0,k:[r[0]],name:'Triple'}:null;
+  if(n!==5)return null;
+  const fl=s.every(x=>Su(x)===Su(s[0]));
+  const st=new Set(r).size===5&&r[4]-r[0]===4&&r[4]<=11;
+  const cnt={};r.forEach(x=>cnt[x]=(cnt[x]||0)+1);
+  const g=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  if(st&&fl)return{n,t:5,k:[s[4]],name:'Straight flush'};
+  if(g[0][1]===4)return{n,t:4,k:[+g[0][0]],name:'Four of a kind'};
+  if(g[0][1]===3&&g[1][1]===2)return{n,t:3,k:[+g[0][0]],name:'Full house'};
+  if(st)return{n,t:1,k:[s[4]],name:'Straight'};
+  return null;
+}
+function beats(a,b){
+  if(!a||!b||a.n!==b.n)return false;
+  if(a.n===5&&a.t!==b.t)return a.t>b.t;
+  return cmpK(a.k,b.k)>0;
+}
+function desc(k,c){
+  const s=[...c].sort(asc);
+  switch(k.name){
+    case 'Single':return cname(s[0]);
+    case 'Pair':return 'Pair of '+RKP[R(s[0])];
+    case 'Triple':return 'Three '+RKP[R(s[0])];
+    case 'Straight':return 'Straight to '+cname(s[4]);
+    case 'Flush':return SG[Su(s[0])]+' flush, '+RK[R(s[4])]+' high';
+    case 'Full house':return 'Full house, '+RKP[k.k[0]];
+    case 'Four of a kind':return 'Four '+RKP[k.k[0]];
+    default:return 'Straight flush to '+cname(s[4]);
+  }
+}
+function combos(h){
+  const out=[],g={};
+  h.forEach(x=>{(g[R(x)]=g[R(x)]||[]).push(x);out.push([x])});
+  Object.values(g).forEach(a=>{
+    for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++){
+      out.push([a[i],a[j]]);
+      for(let k=j+1;k<a.length;k++)out.push([a[i],a[j],a[k]]);
+    }
+  });
+  const n=h.length;
+  if(n>=5)for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)for(let c=b+1;c<n;c++)for(let d=c+1;d<n;d++)for(let e=d+1;e<n;e++){
+    const x=[h[a],h[b],h[c],h[d],h[e]];if(cls(x))out.push(x);
+  }
+  return out.map(c=>({c,k:cls(c)}));
+}
+function canBeat(pool,L){
+  const by={};pool.forEach(x=>(by[R(x)]=by[R(x)]||[]).push(x));
+  const g=Object.entries(by).map(([r,a])=>[+r,a]);
+  if(L.n===1)return pool.some(x=>x>L.k[0]);
+  if(L.n===2)return g.some(([r,a])=>a.length>=2&&Math.max(...a)>L.k[0]);
+  if(L.n===3)return g.some(([r,a])=>a.length>=3&&r>L.k[0]);
+  if(pool.length<5)return false;
+  const ok=(t,k)=>t>L.t||(t===L.t&&cmpK(k,L.k)>0);
+  const has=new Set(pool);
+  for(let s=0;s<4;s++)for(let top=4;top<=11;top++){let f=true;for(let r=top-4;r<=top;r++)if(!has.has(r*4+s)){f=false;break}if(f&&ok(5,[top*4+s]))return true}
+  if(g.some(([r,a])=>a.length===4&&ok(4,[r])))return true;
+  if(g.some(([r,a])=>a.length>=3&&ok(3,[r])&&g.some(([r2,b])=>r2!==r&&b.length>=2)))return true;
+  for(let top=4;top<=11;top++){let f=true;for(let r=top-4;r<=top;r++)if(!by[r]){f=false;break}if(f&&ok(1,[Math.max(...by[top])]))return true}
+  return false;
+}
+function rnd(n){try{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}catch(e){return Math.floor(Math.random()*n)}}
+function clean(s){return String(s||'').replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁠-⁤﻿]/g,'').trim().slice(0,16)}
+function fresh(){return{v:0,phase:'lobby',lobby:[],nick:{},bots:true,seats:[],hands:[],turn:0,last:null,passed:[],out:[],loser:-1,low:0,first:false,log:[],scores:{},acks:{},game:0,pc:0}}
+const seatOf=(S,id)=>S.seats.findIndex(s=>s.id===id);
+function preview(S){
+  const a=S.lobby.slice(0,4).map(id=>({id,bot:false}));
+  if(S.bots){let i=0;while(a.length<4)a.push({id:'bot:'+BOTS[i++],bot:true})}
+  return a;
+}
+function logp(S,e){S.tick=(S.tick||0)+1;S.log.push(e);if(S.log.length>40)S.log.splice(0,S.log.length-40)}
+function deal(S){
+  const seats=preview(S).map(s=>({...s,auto:false}));
+  if(seats.length<2)return 'Need at least two players';
+  const d=[...Array(52).keys()];
+  for(let i=51;i>0;i--){const j=rnd(i+1);[d[i],d[j]]=[d[j],d[i]]}
+  S.seats=seats;
+  S.hands=seats.map((_,i)=>d.slice(i*13,i*13+13).sort(asc));
+  S.low=Math.min(...S.hands.map(h=>h[0]));
+  S.turn=S.hands.findIndex(h=>h[0]===S.low);
+  S.first=true;S.last=null;S.passed=seats.map(()=>false);S.out=[];S.loser=-1;
+  S.phase='play';S.game++;S.pc++;S.prev=null;S.log=[];
+  S.org=true;S.orgUntil=0;S.ready=seats.map(s=>!!s.bot);S.deadline=0;S.tkey='';logp(S,{d:1,s:S.turn});
+  return '';
+}
+function valid(S,seat,c){
+  if(S.phase!=='play')return 'The hand is over';
+  if(S.org)return 'Arranging hands. Play starts soon';
+  if(S.turn!==seat)return 'Not your turn';
+  const h=S.hands[seat];
+  if(!c.length)return 'Pick some cards first';
+  if(new Set(c).size!==c.length||c.some(x=>!h.includes(x)))return 'Those cards are not in your hand';
+  const k=cls(c);
+  if(!k)return c.length===4?'Four of a kind needs a fifth card':'Not a valid hand';
+  if(S.first&&!c.includes(S.low))return 'First play must include the '+cname(S.low);
+  if(S.last){
+    const L=cls(S.last.c);
+    if(k.n!==L.n)return 'Follow with '+(L.n===1?'a single':L.n===2?'a pair':L.n===3?'three of a kind':'a five-card hand');
+    if(!beats(k,L))return 'Does not beat '+desc(L,S.last.c);
+  }
+  return '';
+}
+function adv(S,from){
+  const n=S.seats.length,act=i=>S.hands[i].length>0;
+  for(let k=1;k<=n;k++){const i=(from+k)%n;if(act(i)&&!S.passed[i]&&i!==S.last.s){S.turn=i;return}}
+  let L=S.last.s;
+  if(!act(L)){for(let k=1;k<=n;k++){const i=(L+k)%n;if(act(i)){L=i;break}}}
+  S.prev={...S.last};S.last=null;S.passed=S.seats.map(()=>false);S.turn=L;logp(S,{r:1,s:L});
+}
+function over(S){
+  const act=S.hands.map((h,i)=>h.length?i:-1).filter(i=>i>=0);
+  if(act.length>1)return false;
+  const L=act[0];S.loser=L;S.phase='over';
+  S.seats.forEach((s,i)=>{const sc=S.scores[s.id]||(S.scores[s.id]={pen:0,loss:0,games:0});sc.games++;if(i===L){sc.loss++;sc.pen+=S.hands[i].length}});
+  logp(S,{s:L,l:1,n:S.hands[L].length});
+  return true;
+}
+function play(S,seat,c){
+  const e=valid(S,seat,c);if(e)return e;
+  S.hands[seat]=S.hands[seat].filter(x=>!c.includes(x));
+  S.last={s:seat,c:[...c].sort(asc)};S.first=false;S.pc++;
+  logp(S,{s:seat,c:S.last.c});
+  if(!S.hands[seat].length){S.out.push(seat);logp(S,{s:seat,o:S.out.length})}
+  if(!over(S)){
+    const pool=[];S.hands.forEach((h,i)=>{if(i!==seat&&h.length&&!S.passed[i])pool.push(...h)});
+    if(!canBeat(pool,cls(S.last.c))){S.hands.forEach((h,i)=>{if(i!==seat&&h.length)S.passed[i]=true});S.last.auto=true;logp(S,{s:seat,a:1})}
+    adv(S,seat);
+  }
+  return '';
+}
+function pass(S,seat){
+  if(S.phase!=='play')return 'The hand is over';
+  if(S.org)return 'Arranging hands. Play starts soon';
+  if(S.turn!==seat)return 'Not your turn';
+  if(!S.last)return 'You are leading, so play anything';
+  S.passed[seat]=true;logp(S,{s:seat,p:1});adv(S,seat);return '';
+}
+function timeout(S,seat){
+  logp(S,{s:seat,t:1});
+  if(S.last)return pass(S,seat);
+  return play(S,seat,S.first?[S.low]:[S.hands[seat][0]]);
+}
+function clock(S,now){
+  if(S.phase!=='play')return false;
+  let ch=false;
+  if(S.org){
+    if(!S.orgUntil){S.orgUntil=now+ORG_MS;ch=true}
+    if(now<S.orgUntil)return ch;
+    S.org=false;ch=true;
+  }
+  const key=S.game+':'+S.tick;
+  if(S.tkey!==key){S.tkey=key;S.deadline=now+TURN_MS;ch=true}
+  const seat=S.seats[S.turn];
+  if(seat&&!seat.bot&&!seat.auto&&now>=S.deadline){timeout(S,S.turn);S.tkey=S.game+':'+S.tick;S.deadline=now+TURN_MS;ch=true}
+  return ch;
+}
+function canDeal(S,uid){
+  if(S.phase==='play'||!S.lobby.includes(uid))return false;
+  if(preview(S).length<2)return false;
+  if(S.phase==='lobby')return true;
+  const L=S.seats[S.loser];
+  if(!L||L.bot||L.auto||!S.lobby.includes(L.id))return true;
+  return L.id===uid;
+}
+function apply(S,uid,a){
+  if(!a||typeof a.t!=='string')return false;
+  const i=seatOf(S,uid);
+  switch(a.t){
+    case 'sit':{const nm=clean(a.name);if(nm)S.nick[uid]=nm;if(!S.lobby.includes(uid)){if(S.lobby.length>=4)return !!nm;S.lobby.push(uid)}if(i>=0&&S.seats[i].auto)S.seats[i].auto=false;return true}
+    case 'nick':{const nm=clean(a.name);if(!nm)return false;S.nick[uid]=nm;return true}
+    case 'leave':S.lobby=S.lobby.filter(x=>x!==uid);if(i>=0&&S.phase==='play')S.seats[i].auto='left';return true;
+    case 'bots':if(S.phase==='play')return false;S.bots=!!a.on;return true;
+    case 'deal':return canDeal(S,uid)&&!deal(S);
+    case 'lobby':if(S.phase!=='over'||!S.lobby.includes(uid))return false;S.phase='lobby';return true;
+    case 'ready':if(i<0||S.phase!=='play'||!S.org||S.ready[i])return false;S.ready[i]=true;if(S.seats.every((s,k)=>S.ready[k]||s.bot||s.auto))S.org=false;return true;
+    case 'back':if(i<0||!S.seats[i].auto)return false;S.seats[i].auto=false;return true;
+    case 'reset':S.scores={};return true;
+    case 'play':case 'pass':{
+      if(i<0)return false;const was=S.seats[i].auto;S.seats[i].auto=false;
+      const e=a.t==='play'?play(S,i,(Array.isArray(a.c)?a.c:[]).filter(Number.isInteger)):pass(S,i);
+      return !e||!!was;
+    }
+  }
+  return false;
+}
+function botPick(S,seat){
+  const h=S.hands[seat];
+  let list=combos(h);
+  if(S.first)list=list.filter(x=>x.c.includes(S.low));
+  const opp=Math.min(...S.hands.map((x,i)=>i!==seat&&x.length?x.length:99));
+  const threat=opp<=2;
+  const str=x=>x.k.n<5?Math.max(...x.c):52+x.k.t*14+R(Math.max(...x.c));
+  const cnt={};h.forEach(x=>cnt[R(x)]=(cnt[R(x)]||0)+1);
+  if(!S.last){
+    const all=list.find(x=>x.c.length===h.length);if(all)return all.c;
+    let cand=list;
+    if(opp===1){const m=list.filter(x=>x.c.length>1);cand=m.length?m:[list.reduce((a,b)=>str(b)>str(a)?b:a)]}
+    else{const lo=S.first?S.low:h[0];const m=list.filter(x=>x.c.includes(lo));if(m.length)cand=m}
+    cand=[...cand].sort((a,b)=>{
+      const pa=a.c.some(x=>R(x)>=11)&&a.c.length>1?1:0,pb=b.c.some(x=>R(x)>=11)&&b.c.length>1?1:0;
+      return pa-pb||b.c.length-a.c.length||str(a)-str(b);
+    });
+    return cand[0].c;
+  }
+  const L=cls(S.last.c);
+  let cand=list.filter(x=>x.k.n===L.n&&beats(x.k,L));
+  if(!cand.length)return null;
+  const fin=cand.find(x=>x.c.length===h.length);if(fin)return fin.c;
+  if(threat&&L.n===1)return cand.reduce((a,b)=>str(b)>str(a)?b:a).c;
+  const sc=x=>{
+    let v=str(x);
+    if(x.k.n<5&&x.c.some(y=>cnt[R(y)]>x.c.filter(z=>R(z)===R(y)).length))v+=12;
+    if(!threat&&h.length>4&&x.c.some(y=>R(y)===12))v+=25;
+    if(x.k.n===5&&x.c.some(y=>R(y)>=11))v+=6;
+    return v;
+  };
+  cand.sort((a,b)=>sc(a)-sc(b));
+  if(!threat&&h.length>5&&L.n<5&&sc(cand[0])>58)return null;
+  return cand[0].c;
+}
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const REACTS=['😂','😤','🔥','👏','🐢'];
+const ORD=['1st','2nd','3rd','4th'];
+const POS={4:['me','right','top','left'],3:['me','right','left'],2:['me','top'],1:['me']};
+const COLS=['#f2b880','#e9c46a','#9fd3c7','#f4a3a8','#c9b6e4','#b5d99c','#f7d6a0','#a7c7e7'];
+const clone=o=>JSON.parse(JSON.stringify(o));
+const tab=Math.random().toString(36).slice(2,10);
+
+let mode='practice',P=null,S=null,online=false,connected=false,es=null;
+let myUid=null,myName='',profs={},loaded=false,pend=null,off=0;
+const order={P:{g:-1,ids:[]},S:{g:-1,ids:[]}};let drag=null,noClick=false,deferred=false,lastTick=-1;
+const rem=dl=>Math.max(0,dl-(Date.now()+(mode==='practice'?0:off)));
+const secs=dl=>Math.ceil(rem(dl)/1000);
+let sel=new Set(),sortBy='rank',sound=true,lastPc={P:-1,S:-1},lastTurnMine={P:false,S:false};
+const reacts={},lastR={},awaySince={},due={P:null,S:null};
+try{const p=JSON.parse(localStorage.getItem('b2prefs')||'{}');if(p.sortBy)sortBy=p.sortBy;sound=p.sound!==false}catch(e){}
+const savePrefs=()=>{try{localStorage.setItem('b2prefs',JSON.stringify({sortBy,sound}))}catch(e){}};
+
+const cur=()=>mode==='practice'?P:S;
+const me=()=>mode==='practice'?'me':myUid;
+const hostHere=()=>connected;
+const colOf=id=>{let h=0;for(const ch of String(id))h=(h*31+ch.charCodeAt(0))>>>0;return COLS[h%COLS.length]};
+function nameOf(st,id){
+  if(!id)return 'Someone';
+  if(id.startsWith('bot:'))return id.slice(4);
+  return (st&&st.nick&&st.nick[id])||profs[id]||(id==='me'?'You':'Player');
+}
+const V=(n,a,b)=>n==='You'?b:a;
+const seatsFor=st=>st.phase==='lobby'?preview(st).map(s=>({...s,auto:false})):st.seats;
+
+/* ---------- sound ---------- */
+let ac=null;
+function beep(f,d,vol,type){
+  if(!sound||!ac)return;
+  try{const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type=type||'triangle';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(vol||.05,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d)}catch(e){}
+}
+const sndPlay=()=>{beep(520,.07,.05,'square');setTimeout(()=>beep(340,.09,.04,'square'),45)};
+const sndTurn=()=>{beep(660,.16,.05);setTimeout(()=>beep(880,.22,.05),120)};
+document.addEventListener('pointerdown',()=>{if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}else if(ac.state==='suspended')ac.resume().catch(()=>{})},{capture:true});
+
+/* ---------- toast ---------- */
+let toastT=null,armed=false,armT=null;
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
+
+/* ---------- practice ---------- */
+function loadPS(){try{return JSON.parse(localStorage.getItem('b2practice')||'{}')}catch(e){return{}}}
+function newPractice(){const sc=P?P.scores:loadPS();P=fresh();P.lobby=['me'];P.nick.me=myName||'You';P.scores=sc||{};deal(P);sel.clear()}
+function commitP(){P.v++;try{localStorage.setItem('b2practice',JSON.stringify(P.scores))}catch(e){}render()}
+
+/* ---------- online (self-hosted server) ---------- */
+const tok=(()=>{try{let t=localStorage.getItem('b2tok');if(!t){t=(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36));localStorage.setItem('b2tok',t)}return t}catch(e){return tab+Date.now()}})();
+try{myName=localStorage.getItem('b2name')||''}catch(e){}
+function post(a){return fetch('act',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pid:tok,a})}).then(r=>r.json())}
+
+/* ---------- actions ---------- */
+function act(a){
+  if(mode==='practice'){
+    if(a.t==='lobby')return;
+    if(a.t==='reset'){P.scores={};commitP();return}
+    if(a.t==='restart'){P.game=Math.max(0,P.game-1);deal(P);sel.clear();commitP();toast('Fresh hand dealt');return}
+    const before=P.pc;
+    if(apply(P,'me',a)){if(P.pc!==before)sel.clear();commitP()}
+    return;
+  }
+  if(!S||!connected){toast('Not connected to the table yet');return}
+  if(a.t==='sit'||a.t==='nick'){let n=clean(a.name);if(!n&&$('#nick')){toast('Type your name first');$('#nick').focus();return}if(!n)n='Player '+String(myUid||'').slice(-3);a={...a,name:n};try{localStorage.setItem('b2name',n)}catch(e){}myName=n}
+  pend={t:Date.now()};render();
+  post(a).then(r=>{pend=null;if(r&&!r.ok&&r.err)toast(r.err);if(a.t==='play'&&r&&r.ok)sel.clear();render()}).catch(()=>{pend=null;toast('Could not reach the table');render()});
+}
+const pending=()=>mode==='online'&&!!pend&&Date.now()-pend.t<8000;
+function react(e){
+  showReact(me(),e);
+  if(mode==='online'&&connected)post({t:'react',e}).catch(()=>{});
+}
+function showReact(id,e){reacts[id]={e,t:Date.now()};render();setTimeout(render,2700)}
+
+/* ---------- practice bots ---------- */
+function tickBots(){
+  const st=P;
+  if(P&&clock(P,Date.now())){commitP();return}
+  if(!st||st.phase!=='play'||st.org){due.P=null;return}
+  const seat=st.seats[st.turn];
+  if(!seat||!seat.bot){due.P=null;return}
+  if(!due.P||due.P.v!==st.v||due.P.g!==st.game){due.P={v:st.v,g:st.game,t:Date.now()+650+Math.random()*750};return}
+  if(Date.now()<due.P.t)return;
+  due.P=null;
+  const c=botPick(st,st.turn);
+  const e=c?play(st,st.turn,c):pass(st,st.turn);
+  if(e)pass(st,st.turn);
+  commitP();
+}
+setInterval(tickBots,220);
+
+/* ---------- rendering ---------- */
+function cardH(id,o){
+  o=o||{};const red=Su(id)===1||Su(id)===2,tag=o.btn?'button':'div';
+  const r=RK[R(id)],s=SG[Su(id)];
+  return `<${tag} class="card${red?' red':''}${o.sel?' sel':''}${o.start?' start':''}" data-card="${id}"${o.btn?` type="button" aria-pressed="${!!o.sel}"`:''} aria-label="${esc(cname(id))}"><span class="ix"><b>${r}</b><i>${s}</i></span><span class="pip">${s}</span><span class="ix bt"><b>${r}</b><i>${s}</i></span></${tag}>`;
+}
+const cardsTxt=c=>c.map(x=>`<span class="${Su(x)===1||Su(x)===2?'r':''}">${esc(cname(x))}</span>`).join(' ');
+function chipsFor(st,i,seat){
+  const out=[];
+  if(st.phase==='lobby'){out.push(seat.bot?'<span class="chip">Bot</span>':'<span class="chip safe">Seated</span>');return out.join('')}
+  const h=st.hands[i]||[],o=st.out.indexOf(i);
+  if(st.phase==='over'&&st.loser===i)out.push('<span class="chip lose">Loser</span>');
+  else if(o>=0)out.push(`<span class="chip safe">${ORD[o]} out</span>`);
+  if(st.phase==='play'&&st.org){out.push(st.ready&&st.ready[i]?'<span class="chip safe">Ready</span>':'<span class="chip">Arranging</span>');return out.join('')}
+  if(st.phase==='play'){
+    if(st.turn===i)out.push(`<span class="chip hot">${seat.bot||seat.auto?'Thinking':(seat.id===me()?'Your turn':'Their turn')+` · <span data-dl="${st.deadline}">${secs(st.deadline)}</span>s`}</span>`);
+    else if(st.passed[i]&&h.length)out.push('<span class="chip">Passed</span>');
+    if(h.length===1)out.push('<span class="chip warn">Last card!</span>');
+    if(seat.auto)out.push(`<span class="chip">${seat.auto==='left'?'Left':'Away'} · bot plays</span>`);
+  }
+  return out.join('');
+}
+function bubble(id){const r=reacts[id];return r&&Date.now()-r.t<2600?`<span class="bub" aria-hidden="true">${esc(r.e)}</span>`:''}
+function oppH(st,i,seat,pos){
+  const nm=nameOf(st,seat.id),h=st.hands[i]||[];
+  const turn=st.phase==='play'&&st.turn===i,done=st.phase!=='lobby'&&!h.length;
+  const cnt=st.phase==='lobby'?'':`<div class="cnt">${h.length?`<span class="backs">${'<span class="back"></span>'.repeat(Math.min(h.length,7))}</span><span class="num" aria-label="${h.length} cards">${h.length}</span>`:'<span class="sub">No cards</span>'}</div>`;
+  return `<div class="opp ${pos}${turn?' turn':''}${done?' done':''}">${bubble(seat.id)}<div class="av" style="--c:${colOf(seat.id)}">${esc(nm.slice(0,1).toUpperCase())}</div><div class="nm">${esc(nm)}</div>${cnt}<div class="chips">${chipsFor(st,i,seat)}</div></div>`;
+}
+function lobbyH(st,list){
+  const mine=st.lobby.includes(me());
+  const slots=[0,1,2,3].map(k=>{const s=list[k];if(!s)return '<li class="open">Open seat</li>';const nm=nameOf(st,s.id);return `<li><span class="av" style="--c:${colOf(s.id)}">${esc(nm.slice(0,1).toUpperCase())}</span><span>${esc(nm)}${s.bot?' · bot':''}${s.id===me()?' · you':''}</span></li>`}).join('');
+  const nick=(st.nick&&st.nick[me()])||myName||'';
+  const canD=canDeal(st,me()),hostNote=false;
+  return `<div class="panel"><h2>Table for four</h2><p class="sub">Seats fill in the order people sit down. Turn bots on to fill empty seats, or play with just the people here (two to four).</p><ol class="slots">${slots}</ol>
+  <div class="row"><label class="fld">Your name at the table<input type="text" id="nick" maxlength="16" value="${esc(nick)}" autocomplete="nickname"></label>
+  ${mine?'<button class="btn sm" type="button" data-a="leave">Leave seat</button>':`<button class="btn pri sm" type="button" data-a="sit"${st.lobby.length>=4?' disabled':''}>Sit down</button>`}</div>
+  <label class="tog"><input type="checkbox" id="bots"${st.bots?' checked':''}${mine?'':' disabled'}> Fill empty seats with bots</label>
+  <button class="btn pri" type="button" data-a="deal"${canD&&!pending()?'':' disabled'}>Shuffle and deal</button>
+  ${hostNote?'<p class="sub">The table opens when its host (the page owner or an editor) has this page open.</p>':mine?'':'<p class="sub">Sit down to get dealt in. Friends join by opening this page.</p>'}</div>`;
+}
+function trickH(st,list,anim){
+  if(st.last){
+    const k=cls(st.last.c);
+    const pas=st.seats.map((s,i)=>st.passed[i]&&st.hands[i].length?nameOf(st,s.id):null).filter(Boolean);
+    return `<div class="trick${anim?' anim':''}"><div class="cards">${st.last.c.map(c=>cardH(c)).join('')}</div><div class="tl">${esc(desc(k,st.last.c))} <small>· ${esc(nameOf(st,st.seats[st.last.s].id))}</small></div>${pas.length?`<div class="sub">Passed: ${esc(pas.join(', '))}</div>`:''}</div>`;
+  }
+  const ld=nameOf(st,st.seats[st.turn].id),pv=st.prev;
+  if(st.first||!pv)return `<div class="trick"><div class="lead">${st.first?`${esc(ld)} ${V(ld,'leads','lead')} with the ${esc(cname(st.low))}`:`${esc(ld)} ${V(ld,'leads','lead')}`}</div><div class="sub">${st.first?'First play has to include it':'Any single, pair, triple or five-card hand'}</div></div>`;
+  const wn=nameOf(st,st.seats[pv.s].id);
+  return `<div class="trick${anim?' anim':''}"><div class="cards won">${pv.c.map(c=>cardH(c)).join('')}</div><div class="tl">${esc(wn)} ${V(wn,'takes','take')} the round <small>· ${esc(desc(cls(pv.c),pv.c))}</small></div><div class="sub">${pv.auto?'Nobody could beat it, so everyone passed. ':''}${esc(ld)} ${V(ld,'leads','lead')} anything.</div></div>`;
+}
+function overH(st){
+  const L=st.seats[st.loser],nm=nameOf(st,L.id),n=st.hands[st.loser].length;
+  const order=st.out.map((i,k)=>`<li class="chip safe">${ORD[k]} out · ${esc(nameOf(st,st.seats[i].id))}</li>`).join('');
+  const canD=canDeal(st,me()),mine=st.lobby.includes(me());
+  const youLost=L.id===me();
+  return `<div class="panel"><p class="sub">Hand ${st.game} is done</p><h2>${youLost?'You lose':esc(nm)+' loses'}</h2><p>${n} card${n===1?'':'s'} left, so +${n} penalty point${n===1?'':'s'}.</p><div class="lefthand">${st.hands[st.loser].map(c=>cardH(c)).join('')}</div><ol class="order">${order}</ol>
+  <p class="sub">${youLost?'You shuffle the next hand.':esc(nm)+' shuffles the next hand.'}</p>
+  <div class="row"><button class="btn pri" type="button" data-a="deal"${canD&&!pending()?'':' disabled'}>${canD?'Shuffle and deal':'Waiting for '+esc(nm)+' to shuffle'}</button>${mode==='online'&&mine?'<button class="btn sm" type="button" data-a="lobby">Change seats</button>':''}${mode==='online'&&!mine?`<button class="btn sm" type="button" data-a="sit"${st.lobby.length>=4?' disabled':''}>Sit down</button>`:''}</div></div>`;
+}
+function orKey(){return mode==='practice'?'P':'S'}
+function custom(st){const o=order[orKey()];return o.g===st.game&&o.ids.length>0}
+function sortHand(h,st){
+  const base=sortBy==='suit'?[...h].sort((a,b)=>Su(a)-Su(b)||a-b):[...h].sort(asc);
+  if(!custom(st))return base;
+  const o=order[orKey()].ids.filter(x=>h.includes(x));
+  return o.concat(base.filter(x=>!o.includes(x)));
+}
+function orgH(st){
+  const rdy=st.seats.map((s,i)=>st.ready&&st.ready[i]?nameOf(st,s.id):null).filter(Boolean);
+  const dl=st.orgUntil||0;
+  return `<div class="panel"><p class="sub">Hand ${st.game}</p><h2>Arrange your hands</h2><div class="count"${dl?` data-dl="${dl}"`:''}>${dl?secs(dl):30}</div><p class="sub">Drag your cards to put them in any order. Play starts when the timer runs out or everyone is ready.</p>${rdy.length?`<p class="sub">Ready: ${esc(rdy.join(', '))}</p>`:''}</div>`;
+}
+function mineH(st,list,mi){
+  if(mi<0){
+    const sit=st.lobby.length<4&&mode==='online';
+    return `<div class="banner">You're watching. ${st.phase==='play'?'Sit down to get dealt into the next hand.':''}${sit&&st.phase==='play'?' <button class="btn sm" type="button" data-a="sit">Sit down</button>':''}</div>`;
+  }
+  const seat=list[mi],nm=nameOf(st,seat.id);
+  const badge=`<div class="me${st.phase==='play'&&st.turn===mi?' turn':''}">${bubble(seat.id)}<span class="av" style="--c:${colOf(seat.id)}">${esc(nm.slice(0,1).toUpperCase())}</span><div><div class="nm">${esc(nm)}${nm==='You'?'':' <span class="sub">(you)</span>'}</div><div class="chips" style="justify-content:start">${chipsFor(st,mi,seat)}</div></div></div>`;
+  const rx=`<span class="grp" aria-label="Reactions">${REACTS.map(e=>`<button class="rx" type="button" data-rx="${e}" aria-label="React ${e}">${e}</button>`).join('')}</span>`;
+  if(st.phase!=='play')return `<div class="mehead">${badge}<span class="prev">${st.phase==='lobby'?'Waiting for the deal':'Hand over'}</span>${rx}</div>`;
+  const h=st.hands[mi];
+  if(!h.length)return `<div class="mehead">${badge}<span class="prev ok">You're out of cards and safe. Watch the others fight it out.</span>${rx}</div>`;
+  [...sel].forEach(c=>{if(!h.includes(c))sel.delete(c)});
+  const myTurn=st.turn===mi,c=[...sel],k=c.length?cls(c):null,busy=pending();
+  let msg,cl='';
+  if(st.org)msg='Arrange your hand. Drag cards to reorder';
+  else if(seat.auto)msg='A bot is playing for you';
+  else if(!c.length)msg=myTurn?(st.last?'Beat it or pass':st.first?`Your lead. Include the ${cname(st.low)}`:'Your lead. Play anything'):`Waiting for ${nameOf(st,list[st.turn].id)}`;
+  else if(!k){msg=c.length===4?'Four of a kind needs a fifth card':'Not a valid hand';cl='bad'}
+  else if(!myTurn)msg=desc(k,c);
+  else{const e=valid(st,mi,c);msg=e||desc(k,c)+', ready to play';cl=e?'bad':'ok'}
+  const err=myTurn&&c.length?valid(st,mi,c):'x';
+  const hand=sortHand(h,st).map(x=>cardH(x,{btn:true,sel:sel.has(x),start:st.first&&x===st.low})).join('');
+  return `<div class="mehead">${badge}<span class="prev ${cl}" aria-live="polite">${esc(msg)}</span>${seat.auto?'<button class="btn sm pri" type="button" data-a="back">I\'m back</button>':''}</div>
+  <div class="hand" id="hand">${hand}</div>${myTurn&&!st.org&&!seat.auto?`<div class="tbar" aria-hidden="true"><i data-dl="${st.deadline}" data-total="${TURN_MS}" style="width:${Math.min(100,rem(st.deadline)/TURN_MS*100)}%"></i></div>`:''}
+  <div class="acts"><span class="grp"><span class="seg" role="group" aria-label="Sort hand"><button type="button" data-sort="rank" aria-pressed="${!custom(st)&&sortBy==='rank'}">By rank</button><button type="button" data-sort="suit" aria-pressed="${!custom(st)&&sortBy==='suit'}">By suit</button></span><button class="btn sm" type="button" data-a="clear"${c.length?'':' disabled'}>Clear</button>${rx}</span>
+  <span class="grp">${st.org?`<button class="btn pri" type="button" data-a="ready"${st.ready&&st.ready[mi]||busy?' disabled':''}>${st.ready&&st.ready[mi]?'Ready':'I\'m ready'}</button>`:`<button class="btn sm" type="button" data-a="hint"${myTurn&&!busy?'':' disabled'}>Hint</button><button class="btn" type="button" data-a="pass"${myTurn&&st.last&&!busy?'':' disabled'}>Pass</button><button class="btn pri" type="button" data-a="play"${!err&&!busy?'':' disabled'}>${busy?'Sending':'Play'}</button>`}</span></div>`;
+}
+function renderTable(){
+  const t=$('#table'),st=cur();
+  if(!st){
+    t.innerHTML=`<div class="mid"><div class="mark" aria-hidden="true">鋤大D</div><div class="panel"><h2>${loaded?'The table is not open yet':'Joining the table'}</h2><p class="sub">${loaded?'Could not reach the game server. Check the link, or practise against bots meanwhile.':'Connecting to the game server. If it was asleep this can take up to a minute.'}</p><button class="btn pri" type="button" data-a="practice">Practice vs bots</button></div></div>`;
+    return;
+  }
+  const list=seatsFor(st),n=Math.max(list.length,1),mi=list.findIndex(s=>s.id===me()),view=mi<0?0:mi,map=POS[n]||POS[4];
+  const areas={top:'',left:'',right:'',me:''};
+  list.forEach((s,i)=>{const pos=map[(i-view+n)%n];if(pos==='me'&&mi>=0)return;areas[pos]+=oppH(st,i,s,pos==='me'?'bottom':pos)});
+  const k=mode==='practice'?'P':'S',anim=st.pc!==lastPc[k]&&lastPc[k]!==-1;
+  if(st.pc!==lastPc[k]&&lastPc[k]!==-1&&st.phase!=='lobby')sndPlay();
+  lastPc[k]=st.pc;
+  const myTurn=st.phase==='play'&&mi>=0&&st.turn===mi;
+  if(myTurn&&!lastTurnMine[k])setTimeout(sndTurn,180);
+  lastTurnMine[k]=myTurn;
+  let mid=st.phase==='play'&&st.org?orgH(st):st.phase==='lobby'?lobbyH(st,list):st.phase==='over'?overH(st):trickH(st,list,anim);
+  let ban='';
+  if(mode==='online'&&!connected&&loaded)ban='<div class="banner">Reconnecting to the table…</div>';
+  const rs=mode==='practice'?`<button class="btn sm corner${armed?' armed':''}" type="button" data-a="restart">${armed?'Sure? Restart':'Restart hand'}</button>`:'';
+  t.innerHTML=`${rs}<div class="top">${areas.top}</div><div class="left">${areas.left}</div><div class="right">${areas.right}</div><div class="mid"><div class="mark" aria-hidden="true">鋤大D</div>${ban}${mid}</div><div class="mine">${areas.me}${mineH(st,list,mi)}</div>`;
+}
+function renderSide(){
+  const st=cur(),sd=$('#side');
+  if(!st){sd.innerHTML='';return}
+  const rows=Object.entries(st.scores||{}).sort((a,b)=>b[1].pen-a[1].pen||b[1].loss-a[1].loss);
+  const sc=rows.length?`<table><thead><tr><th>Player</th><th class="n">Losses</th><th class="n">Points</th></tr></thead><tbody>${rows.map(([id,v],i)=>`<tr${i===0&&v.pen>0?' class="worst"':''}><td>${esc(nameOf(st,id))}</td><td class="n">${v.loss} / ${v.games}</td><td class="n">${v.pen}</td></tr>`).join('')}</tbody></table>`:'<p class="sub">No losers yet. Give it one hand.</p>';
+  const canReset=rows.length&&(mode==='practice'||st.phase!=='play');
+  const here=mode==='online'?`<div class="box"><h3>At the table now</h3><ul class="here">${(st.here||[]).map(u=>`<li><span class="dot"></span><span>${esc(st.nick&&st.nick[u]?st.nick[u]:'Someone watching')}${u===myUid?' <span class="sub">(you)</span>':''}</span></li>`).join('')||'<li class="sub">Nobody yet</li>'}</ul></div>`:'';
+  const log=[...st.log].reverse().slice(0,14).map(e=>{
+    const raw=e.s!==undefined&&st.seats[e.s]?nameOf(st,st.seats[e.s].id):'',nm=esc(raw);
+    if(e.d)return `<li>New hand. <b>${nm}</b> ${V(raw,'has','have')} the ${esc(cname(st.low))}</li>`;
+    if(e.c)return e.c.length===1?`<li><b>${nm}</b> played ${cardsTxt(e.c)}</li>`:`<li><b>${nm}</b> ${esc(desc(cls(e.c),e.c))} · ${cardsTxt(e.c)}</li>`;
+    if(e.t)return `<li class="r"><b>${nm}</b> ran out of time</li>`;
+    if(e.p)return `<li><b>${nm}</b> passed</li>`;
+    if(e.o)return `<li><b>${nm}</b> ${V(raw,'is','are')} out, ${ORD[e.o-1]}</li>`;
+    if(e.a)return `<li><b>${nm}</b> played something nobody can beat. Everyone passes</li>`;
+    if(e.r)return `<li><b>${nm}</b> ${V(raw,'leads','lead')} the next round</li>`;
+    if(e.l)return `<li class="r"><b>${nm}</b> ${V(raw,'loses','lose')} with ${e.n} card${e.n===1?'':'s'}</li>`;
+    return '';
+  }).join('');
+  sd.innerHTML=`<div class="box"><h3>Hall of shame</h3><p class="sub">Loser takes a point per card left. Most points is worst.</p>${sc}${canReset?'<p style="margin:10px 0 0"><button class="btn sm" type="button" data-a="reset">Reset scores</button></p>':''}</div>${here}<div class="box"><h3>Play by play</h3>${log?`<ol class="log">${log}</ol>`:'<p class="sub">Nothing played yet.</p>'}</div>`;
+}
+function renderTop(){
+  let s;
+  if(mode==='practice')s='Practice <b>vs bots</b>';
+  else if(!connected)s=loaded?'Online · reconnecting':'Connecting';
+  else s=`Online · <b>${(S&&S.here||[]).length||1} here</b>`;
+  $('#status').innerHTML=s;
+  const mb=$('#modeBtn');mb.hidden=!online;mb.textContent=mode==='practice'?'Back to the online table':'Practice vs bots';
+  const sb=$('#soundBtn');sb.textContent=sound?'Sound on':'Sound off';sb.setAttribute('aria-pressed',String(sound));
+}
+function fitHand(){
+  const h=$('#hand');if(!h||!h.firstElementChild)return;
+  const n=h.children.length,cw=h.firstElementChild.offsetWidth,W=h.clientWidth;
+  const ov=n>1?Math.min(6,(W-cw*n)/(n-1)):0;
+  h.style.setProperty('--ov',Math.max(ov,-cw*.78)+'px');
+}
+function render(){
+  if(drag){deferred=true;return}
+  const a=document.activeElement,keep=a&&a.id==='nick'?{v:a.value,s:a.selectionStart,e:a.selectionEnd}:null;
+  renderTop();renderTable();renderSide();fitHand();
+  if(keep){const n=$('#nick');if(n){n.value=keep.v;n.focus();try{n.setSelectionRange(keep.s,keep.e)}catch(e){}}}
+}
+const roT=new ResizeObserver(()=>fitHand());roT.observe($('#table'));
+
+/* ---------- events ---------- */
+document.addEventListener('click',ev=>{
+  const c=ev.target.closest('button.card');
+  if(c&&noClick)return;
+  if(c){const id=+c.dataset.card;sel.has(id)?sel.delete(id):sel.add(id);render();return}
+  const rx=ev.target.closest('[data-rx]');if(rx){react(rx.dataset.rx);return}
+  const so=ev.target.closest('[data-sort]');if(so){sortBy=so.dataset.sort;order[orKey()]={g:-1,ids:[]};savePrefs();render();return}
+  const b=ev.target.closest('[data-a]');if(!b||b.disabled)return;
+  const st=cur(),A=b.dataset.a;
+  if(A==='clear'){sel.clear();render();return}
+  if(A==='restart'&&!armed){armed=true;render();clearTimeout(armT);armT=setTimeout(()=>{armed=false;render()},3000);return}
+  if(A==='restart'){armed=false;clearTimeout(armT)}
+  if(A==='practice'){if(!P)newPractice();mode='practice';render();return}
+  if(A==='hint'){const list=seatsFor(st),mi=list.findIndex(s=>s.id===me());if(mi<0)return;const p=botPick(st,mi);if(!p){sel.clear();toast('Nothing you hold beats it. Pass.')}else sel=new Set(p);render();return}
+  if(A==='play'){const c=[...sel];act({t:'play',c});return}
+  if(A==='sit'){const n=$('#nick');act({t:'sit',name:n?n.value:(st&&st.nick&&st.nick[me()])||myName});return}
+  act({t:A});
+});
+document.addEventListener('change',ev=>{
+  if(ev.target.id==='bots')act({t:'bots',on:ev.target.checked});
+  if(ev.target.id==='nick'){const st=cur();const v=clean(ev.target.value);if(v&&st&&st.lobby.includes(me()))act({t:'nick',name:v});else if(v)myName=v}
+});
+document.addEventListener('keydown',ev=>{
+  if(ev.key==='Enter'&&!ev.target.closest('input,button,dialog')){const b=document.querySelector('[data-a="play"]');if(b&&!b.disabled){ev.preventDefault();b.click()}return}
+  if(ev.target.id==='nick'&&ev.key==='Enter'){ev.preventDefault();const st=cur();if(st&&!st.lobby.includes(me()))act({t:'sit',name:ev.target.value});else ev.target.blur()}
+});
+$('#rulesBtn').addEventListener('click',()=>{const d=$('#rules');try{d.showModal()}catch(e){d.setAttribute('open','')}});
+$('#soundBtn').addEventListener('click',()=>{sound=!sound;savePrefs();renderTop()});
+$('#modeBtn').addEventListener('click',()=>{if(mode==='practice'){mode='online'}else{if(!P)newPractice();mode='practice'}sel.clear();render()});
+
+/* ---------- drag to reorder ---------- */
+document.addEventListener('pointerdown',ev=>{const c=ev.target.closest('#hand .card');if(!c||ev.button>0)return;drag={id:+c.dataset.card,x0:ev.clientX,el:c,moved:false,pid:ev.pointerId}});
+document.addEventListener('pointermove',ev=>{
+  if(!drag||ev.pointerId!==drag.pid)return;
+  const dx=ev.clientX-drag.x0;
+  if(!drag.moved){if(Math.abs(dx)<10)return;drag.moved=true;drag.el.classList.add('drag');try{drag.el.setPointerCapture(ev.pointerId)}catch(e){}}
+  drag.el.style.transform=`translate(${dx}px,-14px)`;
+});
+function endDrag(ev,cancel){
+  if(!drag)return;const d=drag;drag=null;
+  if(d.moved&&!cancel){
+    noClick=true;setTimeout(()=>noClick=false,60);
+    const cards=[...document.querySelectorAll('#hand .card')].filter(x=>x!==d.el);
+    let idx=cards.length;
+    for(let i=0;i<cards.length;i++){const r=cards[i].getBoundingClientRect();if(ev.clientX<r.left+r.width/2){idx=i;break}}
+    const ids=cards.map(x=>+x.dataset.card);ids.splice(idx,0,d.id);
+    const st=cur();if(st)order[orKey()]={g:st.game,ids};
+  }
+  d.el.style.transform='';d.el.classList.remove('drag');
+  deferred=false;render();
+}
+document.addEventListener('pointerup',ev=>endDrag(ev,false));
+document.addEventListener('pointercancel',ev=>endDrag(ev,true));
+
+/* ---------- countdowns ---------- */
+setInterval(()=>{
+  if(drag&&drag.moved)return;
+  document.querySelectorAll('[data-dl]').forEach(el=>{const r=rem(+el.dataset.dl);if(el.dataset.total)el.style.width=Math.min(100,r/el.dataset.total*100)+'%';else el.textContent=Math.ceil(r/1000);el.classList.toggle('low',r<5500)});
+  const st=cur();
+  if(st&&st.phase==='play'&&!st.org){const mi=st.seats.findIndex(s=>s.id===me());if(mi===st.turn&&!st.seats[mi].auto){const s=Math.ceil(rem(st.deadline)/1000);if(s<=5&&s>0&&s!==lastTick){lastTick=s;beep(990,.06,.04,'sine')}}}
+},200);
+
+/* ---------- boot ---------- */
+function connect(){
+  if(location.protocol==='file:')return;
+  online=true;mode='online';
+  const open=()=>{
+    es=new EventSource('events?pid='+encodeURIComponent(tok));
+    es.addEventListener('hello',e=>{try{myUid=JSON.parse(e.data).uid}catch(x){}});
+    es.addEventListener('state',e=>{try{S=JSON.parse(e.data)}catch(x){return}if(S.now)off=S.now-Date.now();loaded=true;connected=true;render()});
+    es.addEventListener('react',e=>{try{const d=JSON.parse(e.data);if(d.uid!==myUid&&REACTS.includes(d.e))showReact(d.uid,d.e)}catch(x){}});
+    es.onopen=()=>{connected=true;renderTop()};
+    es.onerror=()=>{connected=false;if(es.readyState===2){setTimeout(open,3000)}render()};
+  };
+  open();
+}
+setInterval(()=>{if(mode==='online'&&connected)fetch('ping').catch(()=>{})},240000);
+function start(){
+  if(!P)newPractice();
+  connect();
+  render();
+}
+start();
+
+})();
+</script>
+</body>
+</html>
