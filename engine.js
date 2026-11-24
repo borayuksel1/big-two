@@ -90,7 +90,11 @@ function pickBots(S){
   S.botNames=pool.slice(0,4);
 }
 function deal(S){
-  pickBots(S);
+  // Bot names stay put for the whole session. They only change when someone joins or leaves the table,
+  // when a player's name clashes with a bot's, or when practice is restarted.
+  const key=S.lobby.join(','),taken=new Set(S.lobby.map(id=>String(S.nick[id]||'').toLocaleLowerCase('tr')));
+  if(S.botKey!==key||!S.botNames||S.botNames.length<4||S.botNames.some(n=>taken.has(n.toLocaleLowerCase('tr'))))pickBots(S);
+  S.botKey=key;
   const seats=preview(S).map(s=>({...s,auto:false}));
   if(seats.length<2)return 'Need at least two players';
   const d=[...Array(52).keys()];
@@ -183,12 +187,13 @@ function canDeal(S,uid){
   if(!L||L.bot||L.auto||!S.lobby.includes(L.id))return true;
   return L.id===uid;
 }
+function nameTaken(S,uid,nm){const l=nm.toLocaleLowerCase('tr');return S.lobby.concat(S.seats.filter(s=>!s.bot).map(s=>s.id)).some(u=>u!==uid&&String(S.nick[u]||'').toLocaleLowerCase('tr')===l)}
 function apply(S,uid,a){
   if(!a||typeof a.t!=='string')return false;
   const i=seatOf(S,uid);
   switch(a.t){
-    case 'sit':{const nm=clean(a.name);if(nm)S.nick[uid]=nm;if(!S.lobby.includes(uid)){if(S.lobby.length>=4)return !!nm;S.lobby.push(uid)}if(i>=0&&S.seats[i].auto)S.seats[i].auto=false;return true}
-    case 'nick':{const nm=clean(a.name);if(!nm)return false;S.nick[uid]=nm;return true}
+    case 'sit':{const nm=clean(a.name);if(nm&&nameTaken(S,uid,nm))return false;if(nm){S.nick[uid]=nm;if((S.botNames||[]).some(b=>b.toLocaleLowerCase('tr')===nm.toLocaleLowerCase('tr')))pickBots(S)}if(!S.lobby.includes(uid)){if(S.lobby.length>=4)return !!nm;S.lobby.push(uid)}if(i>=0&&S.seats[i].auto)S.seats[i].auto=false;return true}
+    case 'nick':{const nm=clean(a.name);if(!nm||nameTaken(S,uid,nm))return false;S.nick[uid]=nm;if((S.botNames||[]).some(b=>b.toLocaleLowerCase('tr')===nm.toLocaleLowerCase('tr')))pickBots(S);return true}
     case 'leave':S.lobby=S.lobby.filter(x=>x!==uid);if(i>=0&&S.phase==='play')S.seats[i].auto='left';return true;
     case 'bots':if(S.phase==='play')return false;S.bots=!!a.on;return true;
     case 'deal':return canDeal(S,uid)&&!deal(S);

@@ -87,7 +87,7 @@ button.card:hover{transform:translateY(-7px)}
 @keyframes flash{0%,100%{box-shadow:0 0 0 3px var(--gold),0 0 18px 6px rgba(246,217,135,.8)}50%{box-shadow:0 0 0 1px rgba(234,185,74,.3),0 6px 14px rgba(0,0,0,.28)}}
 .gb{display:flex;gap:8px;flex-wrap:wrap}
 .gb:empty{display:none}
-.gb .btn.armed{background:var(--gold);color:#2a1206;border-color:var(--gold2)}
+.box .btn.armed,.gb .btn.armed{background:var(--gold);color:#2a1206;border-color:var(--gold2)}
 .menu .btn{width:100%}
 .menu .btn.sm{width:auto;justify-self:start}
 .trick.anim .card{animation:drop .36s cubic-bezier(.2,.8,.3,1.2) backwards}
@@ -154,7 +154,7 @@ dialog ul{padding-left:20px;margin:0 0 14px}dialog li{margin:5px 0}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#fbf6ea;color:#2a1206;font-weight:700;padding:10px 18px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:50;max-width:calc(100% - 32px);text-align:center}
 .toast[hidden]{display:none}
 @media(max-width:980px){main{grid-template-columns:minmax(0,1fr)}.felt{min-height:min(820px,calc(100svh - 76px))}aside{overflow:visible;max-height:none;position:static}}
-@media(max-width:600px){:root{--cw:clamp(40px,12vw,56px)}header{padding:10px 16px}.hb{margin-left:0;width:100%;gap:6px;flex-wrap:nowrap}.gb{gap:6px;flex-wrap:nowrap}.hb .btn{min-height:40px;padding:0 12px;font-size:13.5px}.acts{justify-content:center}.acts .grp{justify-content:center}.acts [data-a=play]{flex:1 1 auto}.felt{border-radius:22px;padding:18px 14px 16px;grid-template-columns:minmax(66px,.8fr) minmax(0,2fr) minmax(66px,.8fr);min-height:calc(100svh - 110px)}.felt::before{inset:12px}.av{width:40px;height:40px;font-size:15px}.nm{max-width:84px;font-size:13px}.left .backs,.right .backs{display:none}.left,.right{justify-self:stretch}.felt{gap:6px}.mid{--cw:clamp(34px,10vw,50px)}.panel{padding:16px}.slots{grid-template-columns:minmax(0,1fr)}.prev{order:3;flex-basis:100%}}
+@media(max-width:600px){:root{--cw:clamp(40px,12vw,56px)}header{padding:10px 16px}.hb{margin-left:0;width:100%;gap:6px;flex-wrap:nowrap}.gb{gap:6px;flex-wrap:nowrap}.hb .btn{min-height:40px;padding:0 12px;font-size:13.5px}.acts{justify-content:center}.acts .grp{justify-content:center}.acts [data-a=play]{flex:1 1 auto}.felt{border-radius:22px;padding:18px 12px 16px;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto minmax(170px,1fr) auto;grid-template-areas:"left top right" "mid mid mid" "mine mine mine";min-height:calc(100svh - 110px)}.felt::before{inset:12px}.av{width:40px;height:40px;font-size:15px}.nm{max-width:84px;font-size:13px}.backs{display:none}.left,.right,.top{align-self:start;justify-self:center}.opp{gap:3px}.cnt{min-height:22px}.felt{gap:6px}.mid{--cw:clamp(34px,10vw,50px)}.panel{padding:16px}.slots{grid-template-columns:minmax(0,1fr)}.prev{order:3;flex-basis:100%}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -293,7 +293,11 @@ function pickBots(S){
   S.botNames=pool.slice(0,4);
 }
 function deal(S){
-  pickBots(S);
+  // Bot names stay put for the whole session. They only change when someone joins or leaves the table,
+  // when a player's name clashes with a bot's, or when practice is restarted.
+  const key=S.lobby.join(','),taken=new Set(S.lobby.map(id=>String(S.nick[id]||'').toLocaleLowerCase('tr')));
+  if(S.botKey!==key||!S.botNames||S.botNames.length<4||S.botNames.some(n=>taken.has(n.toLocaleLowerCase('tr'))))pickBots(S);
+  S.botKey=key;
   const seats=preview(S).map(s=>({...s,auto:false}));
   if(seats.length<2)return 'Need at least two players';
   const d=[...Array(52).keys()];
@@ -386,12 +390,13 @@ function canDeal(S,uid){
   if(!L||L.bot||L.auto||!S.lobby.includes(L.id))return true;
   return L.id===uid;
 }
+function nameTaken(S,uid,nm){const l=nm.toLocaleLowerCase('tr');return S.lobby.concat(S.seats.filter(s=>!s.bot).map(s=>s.id)).some(u=>u!==uid&&String(S.nick[u]||'').toLocaleLowerCase('tr')===l)}
 function apply(S,uid,a){
   if(!a||typeof a.t!=='string')return false;
   const i=seatOf(S,uid);
   switch(a.t){
-    case 'sit':{const nm=clean(a.name);if(nm)S.nick[uid]=nm;if(!S.lobby.includes(uid)){if(S.lobby.length>=4)return !!nm;S.lobby.push(uid)}if(i>=0&&S.seats[i].auto)S.seats[i].auto=false;return true}
-    case 'nick':{const nm=clean(a.name);if(!nm)return false;S.nick[uid]=nm;return true}
+    case 'sit':{const nm=clean(a.name);if(nm&&nameTaken(S,uid,nm))return false;if(nm){S.nick[uid]=nm;if((S.botNames||[]).some(b=>b.toLocaleLowerCase('tr')===nm.toLocaleLowerCase('tr')))pickBots(S)}if(!S.lobby.includes(uid)){if(S.lobby.length>=4)return !!nm;S.lobby.push(uid)}if(i>=0&&S.seats[i].auto)S.seats[i].auto=false;return true}
+    case 'nick':{const nm=clean(a.name);if(!nm||nameTaken(S,uid,nm))return false;S.nick[uid]=nm;if((S.botNames||[]).some(b=>b.toLocaleLowerCase('tr')===nm.toLocaleLowerCase('tr')))pickBots(S);return true}
     case 'leave':S.lobby=S.lobby.filter(x=>x!==uid);if(i>=0&&S.phase==='play')S.seats[i].auto='left';return true;
     case 'bots':if(S.phase==='play')return false;S.bots=!!a.on;return true;
     case 'deal':return canDeal(S,uid)&&!deal(S);
@@ -454,7 +459,7 @@ const tab=Math.random().toString(36).slice(2,10);
 
 let mode='practice',P=null,S=null,online=false,connected=false,es=null;
 let myUid=null,myName='',profs={},loaded=false,pend=null,off=0;
-const order={P:{g:-1,ids:[]},S:{g:-1,ids:[]}};let drag=null,noClick=false,deferred=false,lastTick=-1;
+const order={P:{g:-1,ids:[]},S:{g:-1,ids:[]}};let drag=null,noClick=false,deferred=false,lastTick=-1,lastDid=null;
 const rem=dl=>Math.max(0,dl-(Date.now()+(mode==='practice'?0:off)));
 const secs=dl=>Math.ceil(rem(dl)/1000);
 let sel=new Set(),sortBy='rank',sound=true,lastPc={P:-1,S:-1},lastTurnMine={P:false,S:false};
@@ -503,7 +508,7 @@ function act(a){
   if(mode==='practice'){
     if(a.t==='lobby')return;
     if(a.t==='reset'){P.scores={};commitP();return}
-    if(a.t==='restart'){P.game=Math.max(0,P.game-1);deal(P);sel.clear();commitP();toast('Fresh hand dealt');return}
+    if(a.t==='restart'){P.game=Math.max(0,P.game-1);pickBots(P);deal(P);sel.clear();commitP();toast('Fresh hand dealt');return}
     const before=P.pc;
     if(apply(P,'me',a)){if(P.pc!==before)sel.clear();commitP()}
     return;
@@ -594,7 +599,7 @@ function overH(st){
   const order=st.out.map((i,k)=>`<li class="chip safe">${ORD[k]} out · ${esc(nameOf(st,st.seats[i].id))}</li>`).join('');
   const canD=canDeal(st,me()),mine=st.lobby.includes(me());
   const youLost=L.id===me();
-  return `<div class="panel"><p class="sub">Hand ${st.game} is done</p><h2>${youLost?'You lose':esc(nm)+' loses'}</h2><p>${n} card${n===1?'':'s'} left${mult(n)>1?` × ${mult(n)}`:''}, so +${pts(n)} penalty point${pts(n)===1?'':'s'}.</p><div class="lefthand">${st.hands[st.loser].map(c=>cardH(c)).join('')}</div><ol class="order">${order}</ol>
+  return `<div class="panel"><p class="sub">Hand ${st.game} is done</p><h2>${youLost?'You lose':esc(nm)+' loses'}</h2><p>${n} card${n===1?'':'s'} left, so +${n} penalty point${n===1?'':'s'}.</p><div class="lefthand">${st.hands[st.loser].map(c=>cardH(c)).join('')}</div><ol class="order">${order}</ol>
   <p class="sub">${youLost?'You shuffle the next hand.':esc(nm)+' shuffles the next hand.'}</p>
   <div class="row"><button class="btn pri" type="button" data-a="deal"${canD&&!pending()?'':' disabled'}>${canD?'Shuffle and deal':'Waiting for '+esc(nm)+' to shuffle'}</button>${mode==='online'&&mine?'<button class="btn sm" type="button" data-a="lobby">Change seats</button>':''}${mode==='online'&&!mine?`<button class="btn sm" type="button" data-a="sit"${st.lobby.length>=4?' disabled':''}>Sit down</button>`:''}</div></div>`;
 }
@@ -615,13 +620,14 @@ function orgH(st){
 }
 function mineH(st,list,mi){
   if(mi<0){
-    const sit=st.lobby.length<4&&mode==='online';
-    return `<div class="banner">You're watching. ${st.phase==='play'?'Sit down to get dealt into the next hand.':''}${sit&&st.phase==='play'?' <button class="btn sm" type="button" data-a="sit">Sit down</button>':''}</div>`;
+    const q=st.lobby.includes(me()),sit=!q&&st.lobby.length<4&&mode==='online';
+    return `<div class="banner">${q?'You\'re in for the next hand.':`You're watching. ${st.phase==='play'?'Sit down to get dealt into the next hand.':''}`}${sit&&st.phase==='play'?' <button class="btn sm" type="button" data-a="sit">Sit down</button>':''}</div>`;
   }
   const seat=list[mi],nm=nameOf(st,seat.id);
   const badge=`<div class="me${st.phase==='play'&&st.turn===mi?' turn':''}">${bubble(seat.id)}<span class="av" style="--c:${colOf(seat.id)}">${esc(nm.slice(0,1).toUpperCase())}</span><div><div class="nm">${esc(nm)}${nm==='You'?'':' <span class="sub">(you)</span>'}</div><div class="chips" style="justify-content:start">${chipsFor(st,mi,seat)}</div></div></div>`;
   const rx=`<span class="grp" aria-label="Reactions">${REACTS.map(e=>`<button class="rx" type="button" data-rx="${e}" aria-label="React ${e}">${e}</button>`).join('')}</span>`;
   if(st.phase!=='play')return `<div class="mehead">${badge}<span class="prev">${st.phase==='lobby'?'Waiting for the deal':'Hand over'}</span>${rx}</div>`;
+  if(lastDid!==st.did){lastDid=st.did;sel.clear()}
   const h=st.hands[mi];
   if(!h.length)return `<div class="mehead">${badge}<span class="prev ok">You're out of cards and safe. Watch the others fight it out.</span>${rx}</div>`;
   [...sel].forEach(c=>{if(!h.includes(c))sel.delete(c)});
@@ -691,7 +697,7 @@ function renderSide(){
     if(e.l)return `<li class="r"><b>${nm}</b> ${V(raw,'loses','lose')} with ${e.n} card${e.n===1?'':'s'} (+${e.p??e.n})</li>`;
     return '';
   }).join('');
-  sd.innerHTML=`<div class="box"><h3>Hall of shame</h3><p class="sub">Loser takes a point per card left. Most points is worst.</p>${sc}${canReset?'<p style="margin:10px 0 0"><button class="btn sm" type="button" data-a="reset">Reset scores</button></p>':''}</div>${here}<div class="box"><h3>Play by play</h3>${log?`<ol class="log">${log}</ol>`:'<p class="sub">Nothing played yet.</p>'}</div>`;
+  sd.innerHTML=`<div class="box"><h3>Hall of shame</h3><p class="sub">Loser takes a point per card left. Most points is worst.</p>${sc}${canReset?`<p style="margin:10px 0 0"><button class="btn sm${armed==='reset'?' armed':''}" type="button" data-a="reset">${armed==='reset'?'Sure? Reset':'Reset scores'}</button></p>`:''}</div>${here}<div class="box"><h3>Play by play</h3>${log?`<ol class="log">${log}</ol>`:'<p class="sub">Nothing played yet.</p>'}</div>`;
 }
 function renderTop(){
   let s;
@@ -729,8 +735,8 @@ document.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-a]');if(!b||b.disabled)return;
   const st=cur(),A=b.dataset.a;
   if(A==='clear'){sel.clear();render();return}
-  if((A==='restart'||A==='quit')&&armed!==A){armed=A;render();clearTimeout(armT);armT=setTimeout(()=>{armed='';render()},3000);return}
-  if(A==='restart'||A==='quit'){armed='';clearTimeout(armT)}
+  if((A==='restart'||A==='quit'||A==='reset')&&armed!==A){armed=A;render();clearTimeout(armT);armT=setTimeout(()=>{armed='';render()},3000);return}
+  if(A==='restart'||A==='quit'||A==='reset'){armed='';clearTimeout(armT)}
   if(A==='quit'){
     if(mode==='online'&&S&&(S.lobby.includes(myUid)||seatOf(S,myUid)>=0))act({t:'leave'});
     if(mode==='practice')P=null;

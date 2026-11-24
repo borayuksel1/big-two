@@ -86,6 +86,7 @@ const server = http.createServer(async (req, res) => {
     const i = E.seatOf(S, uid);
     if (a.t === 'play' && i >= 0) err = E.valid(S, i, Array.isArray(a.c) ? a.c : []) || err;
     if (a.t === 'pass' && i >= 0) err = S.turn !== i ? 'Not your turn' : !S.last ? 'You are leading, so play anything' : err;
+    if ((a.t === 'sit' || a.t === 'nick') && a.name) err = 'Someone at the table already has that name';
     if (a.t === 'deal') err = S.phase === 'play' ? 'A hand is already going' : 'Only the loser shuffles, or sit down first';
     return reply({ ok: false, err });
   }
