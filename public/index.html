@@ -84,8 +84,11 @@ button.card:hover{transform:translateY(-7px)}
 .trick .won .card{opacity:.72;filter:saturate(.75)}
 .card.start:not(.sel){animation:flash 1s ease-in-out infinite}
 @keyframes flash{0%,100%{box-shadow:0 0 0 3px var(--gold),0 0 18px 6px rgba(246,217,135,.8)}50%{box-shadow:0 0 0 1px rgba(234,185,74,.3),0 6px 14px rgba(0,0,0,.28)}}
-.corner{position:absolute;top:clamp(20px,2.6vw,34px);left:clamp(22px,3vw,40px);z-index:4;background:rgba(20,8,7,.55)}
-.corner.armed{background:var(--gold);color:#2a1206;border-color:var(--gold2)}
+.corner{position:absolute;top:clamp(20px,2.6vw,34px);left:clamp(22px,3vw,40px);z-index:4;display:flex;gap:6px;flex-wrap:wrap;max-width:calc(50% - 40px)}
+.corner .btn{background:rgba(20,8,7,.6)}
+.corner .btn.armed{background:var(--gold);color:#2a1206;border-color:var(--gold2)}
+.menu .btn{width:100%}
+.menu .btn.sm{width:auto;justify-self:start}
 .trick.anim .card{animation:drop .36s cubic-bezier(.2,.8,.3,1.2) backwards}
 .trick.anim .card:nth-child(2){animation-delay:.04s}.trick.anim .card:nth-child(3){animation-delay:.08s}.trick.anim .card:nth-child(4){animation-delay:.12s}.trick.anim .card:nth-child(5){animation-delay:.16s}
 @keyframes drop{from{transform:translateY(46px) rotate(-6deg) scale(.85);opacity:0}}
@@ -175,7 +178,7 @@ dialog ul{padding-left:20px;margin:0 0 14px}dialog li{margin:5px 0}
     <li>Suits rank <b>&#9827;&#xFE0E; clubs &lt; &#9830;&#xFE0E; diamonds &lt; &#9829;&#xFE0E; hearts &lt; &#9824;&#xFE0E; spades</b>. Same rank? The higher suit wins.</li>
     <li>Whoever holds the 3&#9827;&#xFE0E; leads first, and that first play has to include it.</li>
     <li>Play a single, a pair, three of a kind or a five-card hand. To follow, play the same number of cards and beat what's on the table.</li>
-    <li>Each hand starts with 30 seconds to arrange your cards. Drag them into any order you like.</li>
+    <li>Each hand is dealt in a random order, then you get 30 seconds to arrange your cards. Drag them into any order, or tap By rank or By suit.</li>
     <li>You get 20 seconds per turn. Run out and you pass automatically (or, if you're leading, your lowest card is played).</li>
     <li>Pass and you're out until someone wins the round. When everyone else has passed, the last player to play leads anything.</li>
     <li>There are no winners, only a loser. Get rid of all your cards and you're safe. Everyone else keeps playing until one person is left holding cards.</li>
@@ -196,7 +199,9 @@ dialog ul{padding-left:20px;margin:0 0 14px}dialog li{margin:5px 0}
 const RK=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
 const RKP=['3s','4s','5s','6s','7s','8s','9s','10s','Jacks','Queens','Kings','Aces','2s'];
 const SG=['♣︎','♦︎','♥︎','♠︎'];
-const BOTS=['Kemal','Selin','Mert'];
+const BOTS=['Bora','Tarık','Ekin','Batu','Bozok','Ata','Arda','Anıl','Güven','Mete','Yücel'];
+const mult=n=>n>=13?4:n>=10?3:n>=8?2:1;
+const pts=n=>n;
 const ORG_MS=30000,TURN_MS=20000;
 const R=x=>x>>2, Su=x=>x&3;
 const asc=(a,b)=>a-b;
@@ -268,15 +273,22 @@ function canBeat(pool,L){
 }
 function rnd(n){try{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}catch(e){return Math.floor(Math.random()*n)}}
 function clean(s){return String(s||'').replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁠-⁤﻿]/g,'').trim().slice(0,16)}
-function fresh(){return{v:0,phase:'lobby',lobby:[],nick:{},bots:true,seats:[],hands:[],turn:0,last:null,passed:[],out:[],loser:-1,low:0,first:false,log:[],scores:{},acks:{},game:0,pc:0}}
+function fresh(){const S={v:0,phase:'lobby',lobby:[],nick:{},bots:true,seats:[],hands:[],turn:0,last:null,passed:[],out:[],loser:-1,low:0,first:false,log:[],scores:{},acks:{},game:0,pc:0};pickBots(S);return S}
 const seatOf=(S,id)=>S.seats.findIndex(s=>s.id===id);
 function preview(S){
   const a=S.lobby.slice(0,4).map(id=>({id,bot:false}));
-  if(S.bots){let i=0;while(a.length<4)a.push({id:'bot:'+BOTS[i++],bot:true})}
+  if(S.bots){const nm=S.botNames&&S.botNames.length>=4?S.botNames:BOTS;let i=0;while(a.length<4)a.push({id:'bot:'+nm[i++],bot:true})}
   return a;
 }
 function logp(S,e){S.tick=(S.tick||0)+1;S.log.push(e);if(S.log.length>40)S.log.splice(0,S.log.length-40)}
+function pickBots(S){
+  const taken=new Set(S.lobby.map(id=>String(S.nick[id]||'').toLocaleLowerCase('tr')));
+  const pool=BOTS.filter(n=>!taken.has(n.toLocaleLowerCase('tr')));
+  for(let i=pool.length-1;i>0;i--){const j=rnd(i+1);[pool[i],pool[j]]=[pool[j],pool[i]]}
+  S.botNames=pool.slice(0,4);
+}
 function deal(S){
+  pickBots(S);
   const seats=preview(S).map(s=>({...s,auto:false}));
   if(seats.length<2)return 'Need at least two players';
   const d=[...Array(52).keys()];
@@ -287,7 +299,7 @@ function deal(S){
   S.turn=S.hands.findIndex(h=>h[0]===S.low);
   S.first=true;S.last=null;S.passed=seats.map(()=>false);S.out=[];S.loser=-1;
   S.phase='play';S.game++;S.pc++;S.prev=null;S.log=[];
-  S.org=true;S.orgUntil=0;S.ready=seats.map(s=>!!s.bot);S.deadline=0;S.tkey='';logp(S,{d:1,s:S.turn});
+  S.did=rnd(1e9)+1;S.org=true;S.orgUntil=0;S.ready=seats.map(s=>!!s.bot);S.deadline=0;S.tkey='';logp(S,{d:1,s:S.turn});
   return '';
 }
 function valid(S,seat,c){
@@ -318,8 +330,8 @@ function over(S){
   const act=S.hands.map((h,i)=>h.length?i:-1).filter(i=>i>=0);
   if(act.length>1)return false;
   const L=act[0];S.loser=L;S.phase='over';
-  S.seats.forEach((s,i)=>{const sc=S.scores[s.id]||(S.scores[s.id]={pen:0,loss:0,games:0});sc.games++;if(i===L){sc.loss++;sc.pen+=S.hands[i].length}});
-  logp(S,{s:L,l:1,n:S.hands[L].length});
+  S.seats.forEach((s,i)=>{const sc=S.scores[s.id]||(S.scores[s.id]={pen:0,loss:0,games:0});sc.games++;if(i===L){sc.loss++;sc.pen+=pts(S.hands[i].length)}});
+  logp(S,{s:L,l:1,n:S.hands[L].length,p:pts(S.hands[L].length)});
   return true;
 }
 function play(S,seat,c){
@@ -468,7 +480,7 @@ const sndTurn=()=>{beep(660,.16,.05);setTimeout(()=>beep(880,.22,.05),120)};
 document.addEventListener('pointerdown',()=>{if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}else if(ac.state==='suspended')ac.resume().catch(()=>{})},{capture:true});
 
 /* ---------- toast ---------- */
-let toastT=null,armed=false,armT=null;
+let toastT=null,armed='',armT=null,screen='menu';
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
 
 /* ---------- practice ---------- */
@@ -577,13 +589,15 @@ function overH(st){
   const order=st.out.map((i,k)=>`<li class="chip safe">${ORD[k]} out · ${esc(nameOf(st,st.seats[i].id))}</li>`).join('');
   const canD=canDeal(st,me()),mine=st.lobby.includes(me());
   const youLost=L.id===me();
-  return `<div class="panel"><p class="sub">Hand ${st.game} is done</p><h2>${youLost?'You lose':esc(nm)+' loses'}</h2><p>${n} card${n===1?'':'s'} left, so +${n} penalty point${n===1?'':'s'}.</p><div class="lefthand">${st.hands[st.loser].map(c=>cardH(c)).join('')}</div><ol class="order">${order}</ol>
+  return `<div class="panel"><p class="sub">Hand ${st.game} is done</p><h2>${youLost?'You lose':esc(nm)+' loses'}</h2><p>${n} card${n===1?'':'s'} left${mult(n)>1?` × ${mult(n)}`:''}, so +${pts(n)} penalty point${pts(n)===1?'':'s'}.</p><div class="lefthand">${st.hands[st.loser].map(c=>cardH(c)).join('')}</div><ol class="order">${order}</ol>
   <p class="sub">${youLost?'You shuffle the next hand.':esc(nm)+' shuffles the next hand.'}</p>
   <div class="row"><button class="btn pri" type="button" data-a="deal"${canD&&!pending()?'':' disabled'}>${canD?'Shuffle and deal':'Waiting for '+esc(nm)+' to shuffle'}</button>${mode==='online'&&mine?'<button class="btn sm" type="button" data-a="lobby">Change seats</button>':''}${mode==='online'&&!mine?`<button class="btn sm" type="button" data-a="sit"${st.lobby.length>=4?' disabled':''}>Sit down</button>`:''}</div></div>`;
 }
 function orKey(){return mode==='practice'?'P':'S'}
-function custom(st){const o=order[orKey()];return o.g===st.game&&o.ids.length>0}
+function custom(st){const o=order[orKey()];return o.g===st.did&&o.ids.length>0}
 function sortHand(h,st){
+  const k=orKey();
+  if(order[k].g!==st.did){const r=[...h];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}order[k]={g:st.did,ids:r}}
   const base=sortBy==='suit'?[...h].sort((a,b)=>Su(a)-Su(b)||a-b):[...h].sort(asc);
   if(!custom(st))return base;
   const o=order[orKey()].ids.filter(x=>h.includes(x));
@@ -621,8 +635,18 @@ function mineH(st,list,mi){
   <div class="acts"><span class="grp"><span class="seg" role="group" aria-label="Sort hand"><button type="button" data-sort="rank" aria-pressed="${!custom(st)&&sortBy==='rank'}">By rank</button><button type="button" data-sort="suit" aria-pressed="${!custom(st)&&sortBy==='suit'}">By suit</button></span><button class="btn sm" type="button" data-a="clear"${c.length?'':' disabled'}>Clear</button>${rx}</span>
   <span class="grp">${st.org?`<button class="btn pri" type="button" data-a="ready"${st.ready&&st.ready[mi]||busy?' disabled':''}>${st.ready&&st.ready[mi]?'Ready':'I\'m ready'}</button>`:`<button class="btn sm" type="button" data-a="hint"${myTurn&&!busy?'':' disabled'}>Hint</button><button class="btn" type="button" data-a="pass"${myTurn&&st.last&&!busy?'':' disabled'}>Pass</button><button class="btn pri" type="button" data-a="play"${!err&&!busy?'':' disabled'}>${busy?'Sending':'Play'}</button>`}</span></div>`;
 }
+function menuH(){
+  const n=S&&S.here?S.here.length:0,live=S&&S.phase==='play';
+  return `<div class="mid"><div class="mark" aria-hidden="true">鋤大D</div><div class="panel menu"><h2>Big Two</h2><p class="sub">Our house rules: ♣ < ♦ < ♥ < ♠, no flushes, play until one loser is left. No money, points only.</p>
+  <button class="btn pri" type="button" data-a="goOnline"${online?'':' disabled'}>Play online with friends</button>
+  <p class="sub">${online?(connected?`${n} ${n===1?'person':'people'} at the table now${live?', a hand is in progress':''}`:'Connecting to the table…'):'Online play works when the game runs on its server.'}</p>
+  <button class="btn" type="button" data-a="goPractice">Practice vs bots</button>
+  <button class="btn sm" type="button" data-a="rules">House rules</button></div></div>`;
+}
 function renderTable(){
-  const t=$('#table'),st=cur();
+  const t=$('#table');
+  if(screen==='menu'){t.innerHTML=menuH();return}
+  const st=cur();
   if(!st){
     t.innerHTML=`<div class="mid"><div class="mark" aria-hidden="true">鋤大D</div><div class="panel"><h2>${loaded?'The table is not open yet':'Joining the table'}</h2><p class="sub">${loaded?'Could not reach the game server. Check the link, or practise against bots meanwhile.':'Connecting to the game server. If it was asleep this can take up to a minute.'}</p><button class="btn pri" type="button" data-a="practice">Practice vs bots</button></div></div>`;
     return;
@@ -639,11 +663,12 @@ function renderTable(){
   let mid=st.phase==='play'&&st.org?orgH(st):st.phase==='lobby'?lobbyH(st,list):st.phase==='over'?overH(st):trickH(st,list,anim);
   let ban='';
   if(mode==='online'&&!connected&&loaded)ban='<div class="banner">Reconnecting to the table…</div>';
-  const rs=mode==='practice'?`<button class="btn sm corner${armed?' armed':''}" type="button" data-a="restart">${armed?'Sure? Restart':'Restart hand'}</button>`:'';
+  const cb=(a,l,s)=>`<button class="btn sm${armed===a?' armed':''}" type="button" data-a="${a}">${armed===a?s:l}</button>`;
+  const rs=`<div class="corner">${cb('quit','Quit','Sure? Quit')}${mode==='practice'?cb('restart','Restart hand','Sure? Restart'):''}</div>`;
   t.innerHTML=`${rs}<div class="top">${areas.top}</div><div class="left">${areas.left}</div><div class="right">${areas.right}</div><div class="mid"><div class="mark" aria-hidden="true">鋤大D</div>${ban}${mid}</div><div class="mine">${areas.me}${mineH(st,list,mi)}</div>`;
 }
 function renderSide(){
-  const st=cur(),sd=$('#side');
+  const st=screen==='menu'?S:cur(),sd=$('#side');
   if(!st){sd.innerHTML='';return}
   const rows=Object.entries(st.scores||{}).sort((a,b)=>b[1].pen-a[1].pen||b[1].loss-a[1].loss);
   const sc=rows.length?`<table><thead><tr><th>Player</th><th class="n">Losses</th><th class="n">Points</th></tr></thead><tbody>${rows.map(([id,v],i)=>`<tr${i===0&&v.pen>0?' class="worst"':''}><td>${esc(nameOf(st,id))}</td><td class="n">${v.loss} / ${v.games}</td><td class="n">${v.pen}</td></tr>`).join('')}</tbody></table>`:'<p class="sub">No losers yet. Give it one hand.</p>';
@@ -658,18 +683,19 @@ function renderSide(){
     if(e.o)return `<li><b>${nm}</b> ${V(raw,'is','are')} out, ${ORD[e.o-1]}</li>`;
     if(e.a)return `<li><b>${nm}</b> played something nobody can beat. Everyone passes</li>`;
     if(e.r)return `<li><b>${nm}</b> ${V(raw,'leads','lead')} the next round</li>`;
-    if(e.l)return `<li class="r"><b>${nm}</b> ${V(raw,'loses','lose')} with ${e.n} card${e.n===1?'':'s'}</li>`;
+    if(e.l)return `<li class="r"><b>${nm}</b> ${V(raw,'loses','lose')} with ${e.n} card${e.n===1?'':'s'} (+${e.p??e.n})</li>`;
     return '';
   }).join('');
   sd.innerHTML=`<div class="box"><h3>Hall of shame</h3><p class="sub">Loser takes a point per card left. Most points is worst.</p>${sc}${canReset?'<p style="margin:10px 0 0"><button class="btn sm" type="button" data-a="reset">Reset scores</button></p>':''}</div>${here}<div class="box"><h3>Play by play</h3>${log?`<ol class="log">${log}</ol>`:'<p class="sub">Nothing played yet.</p>'}</div>`;
 }
 function renderTop(){
   let s;
-  if(mode==='practice')s='Practice <b>vs bots</b>';
+  if(screen==='menu')s='Main menu';
+  else if(mode==='practice')s='Practice <b>vs bots</b>';
   else if(!connected)s=loaded?'Online · reconnecting':'Connecting';
   else s=`Online · <b>${(S&&S.here||[]).length||1} here</b>`;
   $('#status').innerHTML=s;
-  const mb=$('#modeBtn');mb.hidden=!online;mb.textContent=mode==='practice'?'Back to the online table':'Practice vs bots';
+  $('#modeBtn').hidden=true;
   const sb=$('#soundBtn');sb.textContent=sound?'Sound on':'Sound off';sb.setAttribute('aria-pressed',String(sound));
 }
 function fitHand(){
@@ -696,9 +722,16 @@ document.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-a]');if(!b||b.disabled)return;
   const st=cur(),A=b.dataset.a;
   if(A==='clear'){sel.clear();render();return}
-  if(A==='restart'&&!armed){armed=true;render();clearTimeout(armT);armT=setTimeout(()=>{armed=false;render()},3000);return}
-  if(A==='restart'){armed=false;clearTimeout(armT)}
-  if(A==='practice'){if(!P)newPractice();mode='practice';render();return}
+  if((A==='restart'||A==='quit')&&armed!==A){armed=A;render();clearTimeout(armT);armT=setTimeout(()=>{armed='';render()},3000);return}
+  if(A==='restart'||A==='quit'){armed='';clearTimeout(armT)}
+  if(A==='quit'){
+    if(mode==='online'&&S&&(S.lobby.includes(myUid)||seatOf(S,myUid)>=0))act({t:'leave'});
+    if(mode==='practice')P=null;
+    screen='menu';sel.clear();render();return;
+  }
+  if(A==='goOnline'){mode='online';screen='table';sel.clear();render();return}
+  if(A==='practice'||A==='goPractice'){newPractice();mode='practice';screen='table';sel.clear();render();return}
+  if(A==='rules'){$('#rulesBtn').click();return}
   if(A==='hint'){const list=seatsFor(st),mi=list.findIndex(s=>s.id===me());if(mi<0)return;const p=botPick(st,mi);if(!p){sel.clear();toast('Nothing you hold beats it. Pass.')}else sel=new Set(p);render();return}
   if(A==='play'){const c=[...sel];act({t:'play',c});return}
   if(A==='sit'){const n=$('#nick');act({t:'sit',name:n?n.value:(st&&st.nick&&st.nick[me()])||myName});return}
@@ -732,10 +765,11 @@ function endDrag(ev,cancel){
     let idx=cards.length;
     for(let i=0;i<cards.length;i++){const r=cards[i].getBoundingClientRect();if(ev.clientX<r.left+r.width/2){idx=i;break}}
     const ids=cards.map(x=>+x.dataset.card);ids.splice(idx,0,d.id);
-    const st=cur();if(st)order[orKey()]={g:st.game,ids};
+    const st=cur();if(st)order[orKey()]={g:st.did,ids};
   }
   d.el.style.transform='';d.el.classList.remove('drag');
-  deferred=false;render();
+  if(d.moved&&!cancel){deferred=false;render()}
+  else if(deferred){deferred=false;setTimeout(render,0)}
 }
 document.addEventListener('pointerup',ev=>endDrag(ev,false));
 document.addEventListener('pointercancel',ev=>endDrag(ev,true));
@@ -751,7 +785,7 @@ setInterval(()=>{
 /* ---------- boot ---------- */
 function connect(){
   if(location.protocol==='file:')return;
-  online=true;mode='online';
+  online=true;
   const open=()=>{
     es=new EventSource('events?pid='+encodeURIComponent(tok));
     es.addEventListener('hello',e=>{try{myUid=JSON.parse(e.data).uid}catch(x){}});
@@ -764,7 +798,6 @@ function connect(){
 }
 setInterval(()=>{if(mode==='online'&&connected)fetch('ping').catch(()=>{})},240000);
 function start(){
-  if(!P)newPractice();
   connect();
   render();
 }

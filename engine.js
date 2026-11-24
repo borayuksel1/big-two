@@ -1,7 +1,9 @@
 const RK=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
 const RKP=['3s','4s','5s','6s','7s','8s','9s','10s','Jacks','Queens','Kings','Aces','2s'];
 const SG=['♣︎','♦︎','♥︎','♠︎'];
-const BOTS=['Kemal','Selin','Mert'];
+const BOTS=['Bora','Tarık','Ekin','Batu','Bozok','Ata','Arda','Anıl','Güven','Mete','Yücel'];
+const mult=n=>n>=13?4:n>=10?3:n>=8?2:1;
+const pts=n=>n;
 const ORG_MS=30000,TURN_MS=20000;
 const R=x=>x>>2, Su=x=>x&3;
 const asc=(a,b)=>a-b;
@@ -73,15 +75,22 @@ function canBeat(pool,L){
 }
 function rnd(n){try{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}catch(e){return Math.floor(Math.random()*n)}}
 function clean(s){return String(s||'').replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁠-⁤﻿]/g,'').trim().slice(0,16)}
-function fresh(){return{v:0,phase:'lobby',lobby:[],nick:{},bots:true,seats:[],hands:[],turn:0,last:null,passed:[],out:[],loser:-1,low:0,first:false,log:[],scores:{},acks:{},game:0,pc:0}}
+function fresh(){const S={v:0,phase:'lobby',lobby:[],nick:{},bots:true,seats:[],hands:[],turn:0,last:null,passed:[],out:[],loser:-1,low:0,first:false,log:[],scores:{},acks:{},game:0,pc:0};pickBots(S);return S}
 const seatOf=(S,id)=>S.seats.findIndex(s=>s.id===id);
 function preview(S){
   const a=S.lobby.slice(0,4).map(id=>({id,bot:false}));
-  if(S.bots){let i=0;while(a.length<4)a.push({id:'bot:'+BOTS[i++],bot:true})}
+  if(S.bots){const nm=S.botNames&&S.botNames.length>=4?S.botNames:BOTS;let i=0;while(a.length<4)a.push({id:'bot:'+nm[i++],bot:true})}
   return a;
 }
 function logp(S,e){S.tick=(S.tick||0)+1;S.log.push(e);if(S.log.length>40)S.log.splice(0,S.log.length-40)}
+function pickBots(S){
+  const taken=new Set(S.lobby.map(id=>String(S.nick[id]||'').toLocaleLowerCase('tr')));
+  const pool=BOTS.filter(n=>!taken.has(n.toLocaleLowerCase('tr')));
+  for(let i=pool.length-1;i>0;i--){const j=rnd(i+1);[pool[i],pool[j]]=[pool[j],pool[i]]}
+  S.botNames=pool.slice(0,4);
+}
 function deal(S){
+  pickBots(S);
   const seats=preview(S).map(s=>({...s,auto:false}));
   if(seats.length<2)return 'Need at least two players';
   const d=[...Array(52).keys()];
@@ -92,7 +101,7 @@ function deal(S){
   S.turn=S.hands.findIndex(h=>h[0]===S.low);
   S.first=true;S.last=null;S.passed=seats.map(()=>false);S.out=[];S.loser=-1;
   S.phase='play';S.game++;S.pc++;S.prev=null;S.log=[];
-  S.org=true;S.orgUntil=0;S.ready=seats.map(s=>!!s.bot);S.deadline=0;S.tkey='';logp(S,{d:1,s:S.turn});
+  S.did=rnd(1e9)+1;S.org=true;S.orgUntil=0;S.ready=seats.map(s=>!!s.bot);S.deadline=0;S.tkey='';logp(S,{d:1,s:S.turn});
   return '';
 }
 function valid(S,seat,c){
@@ -123,8 +132,8 @@ function over(S){
   const act=S.hands.map((h,i)=>h.length?i:-1).filter(i=>i>=0);
   if(act.length>1)return false;
   const L=act[0];S.loser=L;S.phase='over';
-  S.seats.forEach((s,i)=>{const sc=S.scores[s.id]||(S.scores[s.id]={pen:0,loss:0,games:0});sc.games++;if(i===L){sc.loss++;sc.pen+=S.hands[i].length}});
-  logp(S,{s:L,l:1,n:S.hands[L].length});
+  S.seats.forEach((s,i)=>{const sc=S.scores[s.id]||(S.scores[s.id]={pen:0,loss:0,games:0});sc.games++;if(i===L){sc.loss++;sc.pen+=pts(S.hands[i].length)}});
+  logp(S,{s:L,l:1,n:S.hands[L].length,p:pts(S.hands[L].length)});
   return true;
 }
 function play(S,seat,c){
