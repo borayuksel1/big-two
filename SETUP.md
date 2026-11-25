@@ -33,6 +33,13 @@ This takes about 15 minutes. Both sites below are free and don't need a credit c
 2. Leave **Fill empty seats with bots** on if you're short of players.
 3. Anyone seated clicks **Shuffle and deal**. After that, only the loser deals.
 
+## Put it on your phone like an app
+
+- **iPhone (Safari):** open the link, tap the Share button, then **Add to Home Screen**.
+- **Android (Chrome):** open the link, tap the ⋮ menu, then **Add to Home screen** or **Install app**.
+
+It gets its own icon and opens full screen, without the browser bars.
+
 ## Good to know
 
 - **The first visit can be slow.** Free Render servers go to sleep after 15 minutes with nobody on them. The first person to open the link waits up to a minute; then it runs normally.

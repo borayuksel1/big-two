@@ -51,6 +51,11 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
     return fs.createReadStream(PAGE).pipe(res);
   }
+  const STATIC = { '/manifest.webmanifest': 'application/manifest+json', '/icon-192.png': 'image/png', '/icon-512.png': 'image/png', '/apple-touch-icon.png': 'image/png' };
+  if (req.method === 'GET' && STATIC[url.pathname]) {
+    res.writeHead(200, { 'content-type': STATIC[url.pathname], 'cache-control': 'public, max-age=86400' });
+    return fs.createReadStream(path.join(__dirname, 'public', url.pathname.slice(1))).pipe(res);
+  }
   if (req.method === 'GET' && url.pathname === '/events') {
     const pid = url.searchParams.get('pid');
     if (!pid) { res.writeHead(400); return res.end(); }

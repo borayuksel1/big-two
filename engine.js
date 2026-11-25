@@ -4,7 +4,7 @@ const SG=['♣︎','♦︎','♥︎','♠︎'];
 const BOTS=['Bora','Tarık','Ekin','Batu','Bozok','Ata','Arda','Anıl','Güven','Mete','Yücel'];
 const mult=n=>n>=13?4:n>=10?3:n>=8?2:1;
 const pts=n=>n;
-const ORG_MS=30000,TURN_MS=20000;
+const ORG_MS=30000,TURN_MS=20000,MAX_SEATS=8,SHINY_ODDS=8192;
 const R=x=>x>>2, Su=x=>x&3;
 const asc=(a,b)=>a-b;
 const cname=x=>RK[R(x)]+SG[Su(x)];
@@ -14,6 +14,7 @@ function cls(c){
   if(n===1)return{n,t:0,k:[s[0]],name:'Single'};
   if(n===2)return r[0]===r[1]?{n,t:0,k:[s[1]],name:'Pair'}:null;
   if(n===3)return r[0]===r[2]?{n,t:0,k:[r[0]],name:'Triple'}:null;
+  if(n===4)return r[0]===r[3]?{n,t:0,k:[r[0]],name:'Four of a kind'}:null;
   if(n!==5)return null;
   const fl=s.every(x=>Su(x)===Su(s[0]));
   const st=new Set(r).size===5&&r[4]-r[0]===4&&r[4]<=11;
@@ -21,7 +22,6 @@ function cls(c){
   const g=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
   if(st&&fl)return{n,t:5,k:[s[4]],name:'Straight flush'};
   if(g[0][1]===4)return{n,t:4,k:[+g[0][0]],name:'Four of a kind'};
-  if(g[0][1]===3&&g[1][1]===2)return{n,t:3,k:[+g[0][0]],name:'Full house'};
   if(st)return{n,t:1,k:[s[4]],name:'Straight'};
   return null;
 }
@@ -39,7 +39,7 @@ function desc(k,c){
     case 'Straight':return 'Straight to '+cname(s[4]);
     case 'Flush':return SG[Su(s[0])]+' flush, '+RK[R(s[4])]+' high';
     case 'Full house':return 'Full house, '+RKP[k.k[0]];
-    case 'Four of a kind':return 'Four '+RKP[k.k[0]];
+    case 'Four of a kind':return 'Four '+RKP[k.k[0]]+(c.length===5?' + 1':'');
     default:return 'Straight flush to '+cname(s[4]);
   }
 }
@@ -52,6 +52,7 @@ function combos(h){
       for(let k=j+1;k<a.length;k++)out.push([a[i],a[j],a[k]]);
     }
   });
+  Object.values(g).forEach(a=>{if(a.length===4)out.push([...a])});
   const n=h.length;
   if(n>=5)for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)for(let c=b+1;c<n;c++)for(let d=c+1;d<n;d++)for(let e=d+1;e<n;e++){
     const x=[h[a],h[b],h[c],h[d],h[e]];if(cls(x))out.push(x);
@@ -64,12 +65,12 @@ function canBeat(pool,L){
   if(L.n===1)return pool.some(x=>x>L.k[0]);
   if(L.n===2)return g.some(([r,a])=>a.length>=2&&Math.max(...a)>L.k[0]);
   if(L.n===3)return g.some(([r,a])=>a.length>=3&&r>L.k[0]);
+  if(L.n===4)return g.some(([r,a])=>a.length===4&&r>L.k[0]);
   if(pool.length<5)return false;
   const ok=(t,k)=>t>L.t||(t===L.t&&cmpK(k,L.k)>0);
   const has=new Set(pool);
   for(let s=0;s<4;s++)for(let top=4;top<=11;top++){let f=true;for(let r=top-4;r<=top;r++)if(!has.has(r*4+s)){f=false;break}if(f&&ok(5,[top*4+s]))return true}
   if(g.some(([r,a])=>a.length===4&&ok(4,[r])))return true;
-  if(g.some(([r,a])=>a.length>=3&&ok(3,[r])&&g.some(([r2,b])=>r2!==r&&b.length>=2)))return true;
   for(let top=4;top<=11;top++){let f=true;for(let r=top-4;r<=top;r++)if(!by[r]){f=false;break}if(f&&ok(1,[Math.max(...by[top])]))return true}
   return false;
 }
@@ -78,7 +79,7 @@ function clean(s){return String(s||'').replace(/[\u0000-\u001f\u007f-\u009f​-�
 function fresh(){const S={v:0,phase:'lobby',lobby:[],nick:{},bots:true,seats:[],hands:[],turn:0,last:null,passed:[],out:[],loser:-1,low:0,first:false,log:[],scores:{},acks:{},game:0,pc:0};pickBots(S);return S}
 const seatOf=(S,id)=>S.seats.findIndex(s=>s.id===id);
 function preview(S){
-  const a=S.lobby.slice(0,4).map(id=>({id,bot:false}));
+  const a=S.lobby.slice(0,MAX_SEATS).map(id=>({id,bot:false}));
   if(S.bots){const nm=S.botNames&&S.botNames.length>=4?S.botNames:BOTS;let i=0;while(a.length<4)a.push({id:'bot:'+nm[i++],bot:true})}
   return a;
 }
@@ -99,8 +100,19 @@ function deal(S){
   if(seats.length<2)return 'Need at least two players';
   const d=[...Array(52).keys()];
   for(let i=51;i>0;i--){const j=rnd(i+1);[d[i],d[j]]=[d[j],d[i]]}
+  const prevL=S.seats&&S.seats[S.loser]?S.seats[S.loser].id:null;
   S.seats=seats;
-  S.hands=seats.map((_,i)=>d.slice(i*13,i*13+13).sort(asc));
+  // Deal one card at a time, starting with the player after whoever shuffled (last hand's loser).
+  // Two or three players get 13 each; four or more share the whole deck, so some may get one extra card.
+  const n=seats.length;
+  const di=seats.findIndex(s=>s.id===prevL),start=di>=0?(di+1)%n:0;
+  const total=n<4?13*n:52;
+  S.hands=seats.map(()=>[]);
+  for(let k=0;k<total;k++)S.hands[(start+k)%n].push(d[k]);
+  S.dealStart=start;
+  // Every card dealt has a 1 in 8192 chance to be shiny. Purely cosmetic.
+  S.shiny=d.slice(0,total).filter(()=>rnd(SHINY_ODDS)===0);
+  S.hands.forEach(h=>h.sort(asc));
   S.low=Math.min(...S.hands.map(h=>h[0]));
   S.turn=S.hands.findIndex(h=>h[0]===S.low);
   S.first=true;S.last=null;S.passed=seats.map(()=>false);S.out=[];S.loser=-1;
@@ -116,11 +128,11 @@ function valid(S,seat,c){
   if(!c.length)return 'Pick some cards first';
   if(new Set(c).size!==c.length||c.some(x=>!h.includes(x)))return 'Those cards are not in your hand';
   const k=cls(c);
-  if(!k)return c.length===4?'Four of a kind needs a fifth card':'Not a valid hand';
+  if(!k)return c.length===4?'Four cards only work as four of a kind':'Not a valid hand';
   if(S.first&&!c.includes(S.low))return 'First play must include the '+cname(S.low);
   if(S.last){
     const L=cls(S.last.c);
-    if(k.n!==L.n)return 'Follow with '+(L.n===1?'a single':L.n===2?'a pair':L.n===3?'three of a kind':'a five-card hand');
+    if(k.n!==L.n)return 'Follow with '+(L.n===1?'a single':L.n===2?'a pair':L.n===3?'three of a kind':L.n===4?'four of a kind':'a five-card hand');
     if(!beats(k,L))return 'Does not beat '+desc(L,S.last.c);
   }
   return '';
@@ -192,7 +204,7 @@ function apply(S,uid,a){
   if(!a||typeof a.t!=='string')return false;
   const i=seatOf(S,uid);
   switch(a.t){
-    case 'sit':{const nm=clean(a.name);if(nm&&nameTaken(S,uid,nm))return false;if(nm){S.nick[uid]=nm;if((S.botNames||[]).some(b=>b.toLocaleLowerCase('tr')===nm.toLocaleLowerCase('tr')))pickBots(S)}if(!S.lobby.includes(uid)){if(S.lobby.length>=4)return !!nm;S.lobby.push(uid)}if(i>=0&&S.seats[i].auto)S.seats[i].auto=false;return true}
+    case 'sit':{const nm=clean(a.name);if(nm&&nameTaken(S,uid,nm))return false;if(nm){S.nick[uid]=nm;if((S.botNames||[]).some(b=>b.toLocaleLowerCase('tr')===nm.toLocaleLowerCase('tr')))pickBots(S)}if(!S.lobby.includes(uid)){if(S.lobby.length>=MAX_SEATS)return !!nm;S.lobby.push(uid)}if(i>=0&&S.seats[i].auto)S.seats[i].auto=false;return true}
     case 'nick':{const nm=clean(a.name);if(!nm||nameTaken(S,uid,nm))return false;S.nick[uid]=nm;if((S.botNames||[]).some(b=>b.toLocaleLowerCase('tr')===nm.toLocaleLowerCase('tr')))pickBots(S);return true}
     case 'leave':S.lobby=S.lobby.filter(x=>x!==uid);if(i>=0&&S.phase==='play')S.seats[i].auto='left';return true;
     case 'bots':if(S.phase==='play')return false;S.bots=!!a.on;return true;
