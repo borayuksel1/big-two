@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Big Two">
 <link rel="manifest" href="manifest.webmanifest">
+<script>try{document.documentElement.dataset.table=localStorage.getItem('b2table')||'classic'}catch(e){document.documentElement.dataset.table='classic'}</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <title>Big Two</title>
@@ -17,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Slab:wght@700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
 <style>
 /* VOICE occasion: a game night with friends, warm and a bit loud
-   IDEA the crimson felt of a Hong Kong card parlour table, wooden rail, gold inlay, 鋤大D printed on the cloth
+   IDEA the crimson felt of a Hong Kong card parlour table, wooden rail, gold inlay
    PICTURE the table itself: four seats, the trick in the middle, your fanned hand at the rail
    COLOUR room-dark brown ground, crimson felt, ivory cards, parlour gold for whose turn it is
    TYPE Unbounded for names and headings, Roboto Slab for card indices, Inter for everything else
@@ -177,6 +178,49 @@ dialog ul{padding-left:20px;margin:0 0 14px}dialog li{margin:5px 0}
 .ladder span{padding:4px 10px;border-radius:999px;background:#2e1714;font-size:13px;font-weight:600}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#fbf6ea;color:#2a1206;font-weight:700;padding:10px 18px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:50;max-width:calc(100% - 32px);text-align:center}
 .toast[hidden]{display:none}
+/* Bodrum: the teak and steel table from the photo, sitting on the grey deck, bougainvillea everywhere */
+:root[data-table=bodrum] body{background-color:#4d4844;background-image:
+ radial-gradient(ellipse 90% 70% at 50% 45%,rgba(255,214,160,.10),rgba(0,0,0,.35) 100%),
+ repeating-linear-gradient(90deg,transparent 0 337px,rgba(20,16,14,.55) 337px 339px,transparent 339px 523px),
+ repeating-linear-gradient(180deg,transparent 0 46px,#211d1a 46px 49px),
+ repeating-linear-gradient(180deg,rgba(255,255,255,.05) 0 49px,transparent 49px 98px,rgba(0,0,0,.07) 98px 147px),
+ repeating-linear-gradient(179.4deg,rgba(255,255,255,.025) 0 1px,transparent 1px 5px,rgba(0,0,0,.05) 5px 6px,transparent 6px 13px),
+ linear-gradient(180deg,#625c56,#514b46);background-attachment:fixed}
+#deck{display:none}
+:root[data-table=bodrum] #deck{display:block;position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+#deck svg{position:absolute;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+:root[data-table=bodrum] .felt{border-radius:5px;background:
+ radial-gradient(ellipse 70% 60% at 50% 42%,rgba(255,222,170,.22),transparent 72%),
+ radial-gradient(ellipse 130% 100% at 50% 45%,transparent 60%,rgba(40,15,0,.35) 100%),
+ repeating-linear-gradient(180.5deg,rgba(255,236,200,.07) 0 1px,transparent 1px 6px,rgba(70,30,0,.08) 6px 7px,transparent 7px 17px),
+ repeating-linear-gradient(179.3deg,transparent 0 23px,rgba(90,40,5,.10) 23px 25px,transparent 25px 61px),
+ linear-gradient(180deg,#c98a48 0%,#b87538 50%,#a4632a 100%);
+ box-shadow:inset 0 0 0 3px #3b3d3f,inset 0 0 0 4px #c4c6c4,inset 0 0 0 9px #9c9e9b,inset 0 0 0 10px #6e706e,inset 0 0 0 11px #2d2f31,inset 0 14px 30px rgba(60,25,0,.25),0 4px 0 #2a2b2c,0 26px 40px rgba(0,0,0,.55)}
+:root[data-table=bodrum] .felt::before{border:0;inset:11px;border-radius:2px;box-shadow:inset 0 2px 6px rgba(60,25,0,.35)}
+:root[data-table=bodrum] .mark{color:rgba(70,28,0,.20)}
+:root[data-table=bodrum] .nm,:root[data-table=bodrum] .num,:root[data-table=bodrum] .prev,:root[data-table=bodrum] .lead,:root[data-table=bodrum] .trick>.sub,:root[data-table=bodrum] .cnt .sub{text-shadow:0 1px 2px rgba(40,14,0,.9),0 0 8px rgba(40,14,0,.5)}
+:root[data-table=bodrum] .trick>.sub,:root[data-table=bodrum] .cnt .sub{color:#fff3e6}
+:root[data-table=bodrum] .prev.ok{color:#fff1b8}:root[data-table=bodrum] .prev.bad{color:#ffd6cf}
+:root[data-table=bodrum] .back{background:repeating-linear-gradient(45deg,#b0175f 0 3px,#d42a7c 3px 6px);border-color:#fbe9f1}
+:root[data-table=bodrum] .tl{background:rgba(40,16,4,.62)}
+:root[data-table=bodrum] .seg,:root[data-table=bodrum] .acts .btn:not(.pri),:root[data-table=bodrum] .rx{background:#5a2f14;border-color:#3d1e0a}
+:root[data-table=bodrum] .acts .btn:disabled{opacity:1;color:rgba(255,240,225,.4)}
+:root[data-table=bodrum] header .pill,:root[data-table=bodrum] header .btn:not(.pri){background:rgba(30,26,24,.7)}
+:root[data-table=bodrum] aside .box{background:rgba(26,22,20,.92)}
+.petals{position:absolute;inset:0;overflow:hidden;border-radius:inherit;pointer-events:none;z-index:0}
+.petals .dec svg{position:static;width:100%;height:100%;filter:none;display:block}
+.petals .dec{position:absolute;filter:drop-shadow(3px 6px 4px rgba(40,15,0,.45));transform:translate(-50%,-50%)}
+.d-mart{left:7.5%;top:13%;width:84px;height:84px}.d-n1{left:16%;top:7.5%;width:58px;height:58px}
+.d-gt{left:92.5%;top:13%;width:90px;height:90px}.d-kk{left:83.5%;top:8%;width:74px;height:74px}.d-n2{left:83%;top:24%;width:54px;height:54px}
+@media(max-width:600px){.d-mart{left:9%;top:30%;width:48px;height:48px}.d-n1{left:9%;top:41%;width:38px;height:38px}.d-gt{left:91%;top:30%;width:50px;height:50px}.d-kk{left:91%;top:41.5%;width:44px;height:44px}.d-n2{left:91%;top:52%;width:36px;height:36px}}
+.petals svg{position:absolute;overflow:visible;filter:drop-shadow(0 2px 2px rgba(30,0,10,.45))}
+#fx .fall{position:absolute;top:0;left:0;width:22px;height:22px;overflow:visible;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.looks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.look{display:grid;gap:6px;justify-items:start;padding:8px;border-radius:14px;border:1px solid #5a3128;background:none;cursor:pointer;font-weight:600;font-size:13.5px;min-height:44px;text-align:left}
+.look[aria-pressed=true]{border-color:var(--gold);box-shadow:0 0 0 2px rgba(234,185,74,.35)}
+.look i{display:block;width:100%;height:34px;border-radius:8px}
+.look .sw-classic{background:radial-gradient(ellipse at 50% 40%,#ad2431,#5b0e17);box-shadow:inset 0 0 0 3px #2a150f}
+.look .sw-bodrum{background:radial-gradient(circle at 18% 30%,#e03a8f 0 3px,transparent 4px),radial-gradient(circle at 84% 70%,#ff7cbf 0 3px,transparent 4px),linear-gradient(#c98a48,#a4632a);box-shadow:inset 0 0 0 3px #9c9e9b,0 0 0 4px #514b46}
 @media(max-width:980px){main{grid-template-columns:minmax(0,1fr)}.felt{min-height:min(820px,calc(100svh - 76px))}aside{overflow:visible;max-height:none;position:static}}
 @media(max-width:600px){
 :root{--cw:clamp(38px,11.6vw,54px)}
@@ -187,7 +231,7 @@ input{user-select:text;-webkit-user-select:text}
 header{flex-wrap:nowrap;gap:8px;padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left))}
 .brand{font-size:18px;gap:8px;flex:none}.logo{width:22px;height:30px;font-size:11px}
 .pill{font-size:12px;padding:4px 10px;overflow:hidden;text-overflow:ellipsis}
-.hb{margin-left:auto;flex:none}.hb .gb,#rulesBtn,#soundBtn{display:none}#menuBtn{display:inline-flex;align-items:center}
+.hb{margin-left:auto;flex:none}.hb .gb,#rulesBtn,#soundBtn,#tableBtn{display:none}#menuBtn{display:inline-flex;align-items:center}
 main{padding:0 max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));grid-template-columns:minmax(0,1fr);min-height:0;gap:0}
 .felt{min-height:0;height:100%;border-radius:20px;padding:12px 10px 10px;gap:6px;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"top" "mid" "mine";box-shadow:inset 0 0 0 7px #2a150f,inset 0 0 0 8px #7a4a26,inset 0 0 0 9px #2a150f,inset 0 14px 40px rgba(0,0,0,.4)}
 .felt::before{inset:12px;border-radius:14px}
@@ -221,6 +265,7 @@ body.sheet aside{transform:none}
 #scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:39;display:none}
 body.sheet #scrim{display:block}
 }
+@media(max-width:600px){:root[data-table=bodrum] main{padding:6px max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}:root[data-table=bodrum] .felt{border-radius:4px}}
 @media(max-width:600px) and (max-height:700px){:root{--cw:clamp(36px,10.6vw,48px)}.opp .cnt{display:none}.mehead .chips{display:none}.hand{padding-top:16px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -233,6 +278,7 @@ body.sheet #scrim{display:block}
     <div class="hb">
       <span id="gameBtns" class="gb"></span>
       <button class="btn sm" type="button" id="modeBtn" hidden>Practice vs bots</button>
+      <button class="btn sm" type="button" id="tableBtn" data-a="table">Table: Classic</button>
       <button class="btn sm" type="button" id="rulesBtn">Rules</button>
       <button class="btn sm" type="button" id="soundBtn" aria-pressed="true">Sound on</button>
       <button class="btn sm" type="button" id="menuBtn" aria-label="Open menu, scores and play by play">&#9776; Menu</button>
@@ -259,16 +305,34 @@ body.sheet #scrim{display:block}
     <li>The loser takes 1 penalty point per card still in hand and shuffles the next hand.</li>
   </ul>
   <p class="sub">Five-card hands, weakest to strongest:</p>
-  <div class="ladder"><span>Straight</span><span>Four of a kind + 1</span><span>Straight flush</span></div>
-  <p class="sub">Four of a kind can also be played on its own as four cards. It can only be beaten by a higher four of a kind.</p>
+  <div class="ladder"><span>Straight</span><span>Straight flush</span></div>
+  <p class="sub">Four of a kind is played as just the four cards, never with a fifth. Like a pair or a triple, it can only be beaten by a higher four of a kind.</p>
   <ul>
     <li>Straights run 3-4-5-6-7 up to 10-J-Q-K-A. No 2s in straights.</li>
-    <li>No flushes: five cards of one suit only count if they also make a straight. No full houses either. Straights and straight flushes compare by their top card, four of a kind by the four.</li>
+    <li>No flushes: five cards of one suit only count if they also make a straight. No full houses, and four of a kind can't be padded with a fifth card. Straights and straight flushes compare by their top card.</li>
     <li>Every card dealt has a 1 in 8192 chance to be shiny: black paper, blue and silver ink. It plays exactly like a normal card. It's just for looks.</li>
+    <li>Pick your table under Table: the classic red felt, or Bodrum: the teak table on the deck, bougainvillea everywhere, drinks and nuts on the table. Each player picks their own.</li>
     <li>No money and no betting. Points only, for bragging rights.</li>
   </ul>
   <form method="dialog"><button class="btn pri" type="submit">Got it</button></form>
 </dialog>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="pg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7cbf"/><stop offset="1" stop-color="#cc1474"/></linearGradient>
+  <linearGradient id="pg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffa3d2"/><stop offset="1" stop-color="#e03a8f"/></linearGradient>
+  <linearGradient id="pg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2459a"/><stop offset="1" stop-color="#9d0f58"/></linearGradient>
+  <linearGradient id="lf1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9b84a"/><stop offset="1" stop-color="#a7832a"/></linearGradient>
+  <linearGradient id="lf2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9b54e"/><stop offset="1" stop-color="#7d7a2c"/></linearGradient>
+  <symbol id="leaf" viewBox="0 0 24 24"><path d="M2 12C6 5 16 4 22 12 16 20 6 19 2 12z"/><path d="M2.5 12H21M7 12l2.5-2.6M11 12l2.5-3M15 12l2.2-2.4M7 12l2.5 2.6M11 12l2.5 3M15 12l2.2 2.4" fill="none" stroke="rgba(80,55,10,.45)" stroke-width=".6" stroke-linecap="round"/></symbol>
+  <radialGradient id="crema" cx=".45" cy=".4" r=".6"><stop offset="0" stop-color="#e2bf92"/><stop offset=".7" stop-color="#b07a4a"/><stop offset="1" stop-color="#6e4020"/></radialGradient>
+  <radialGradient id="kkg" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#c9f07a"/><stop offset=".6" stop-color="#7cc83d"/><stop offset="1" stop-color="#3f8a22"/></radialGradient>
+  <radialGradient id="gtg" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="rgba(245,255,250,.55)"/><stop offset="1" stop-color="rgba(170,210,200,.35)"/></radialGradient>
+  <radialGradient id="glass" cx=".5" cy=".5" r=".5"><stop offset=".82" stop-color="rgba(255,255,255,0)"/><stop offset=".93" stop-color="rgba(255,255,255,.55)"/><stop offset="1" stop-color="rgba(255,255,255,.15)"/></radialGradient>
+  <symbol id="d-mart" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="rgba(255,255,255,.12)"/><circle cx="50" cy="50" r="40" fill="#2a1408"/><circle cx="50" cy="50" r="36" fill="url(#crema)"/><g fill="#2b1408" stroke="#7a4a26" stroke-width="1"><ellipse cx="44" cy="45" rx="6.5" ry="4.5" transform="rotate(-30 44 45)"/><ellipse cx="56" cy="47" rx="6.5" ry="4.5" transform="rotate(25 56 47)"/><ellipse cx="50" cy="57" rx="6.5" ry="4.5" transform="rotate(95 50 57)"/></g><g stroke="#8a5a35" stroke-width=".9"><path d="M40 47.5l8-5M52 45l8 4.5M50.7 51l-1.4 11"/></g><circle cx="50" cy="50" r="47" fill="url(#glass)"/><path d="M22 28a36 36 0 0 1 20-14" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <symbol id="d-gt" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="rgba(255,255,255,.14)"/><circle cx="50" cy="50" r="42" fill="url(#gtg)"/><g fill="rgba(255,255,255,.55)" stroke="rgba(255,255,255,.85)" stroke-width="1"><rect x="24" y="24" width="20" height="20" rx="4" transform="rotate(12 34 34)"/><rect x="55" y="58" width="19" height="19" rx="4" transform="rotate(-18 64 67)"/><rect x="26" y="57" width="17" height="17" rx="4" transform="rotate(30 34 65)"/></g><circle cx="61" cy="38" r="14" fill="#cde77a" stroke="#6f9a2a" stroke-width="3"/><g stroke="#8fb43c" stroke-width="1.3"><path d="M61 25v26M48 38h26M52 29l18 18M70 29L52 47"/></g><circle cx="61" cy="38" r="3" fill="#f4f9d8"/><g fill="#2c3550"><circle cx="45" cy="50" r="2.6"/><circle cx="49" cy="53" r="2.4"/><circle cx="44" cy="55" r="2.3"/></g><g fill="none" stroke="rgba(255,255,255,.8)" stroke-width=".9"><circle cx="38" cy="47" r="1.4"/><circle cx="70" cy="56" r="1.2"/><circle cx="52" cy="72" r="1.5"/><circle cx="33" cy="40" r="1"/></g><circle cx="50" cy="50" r="47" fill="url(#glass)"/><path d="M20 32a38 38 0 0 1 18-16" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <symbol id="d-kk" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="rgba(255,255,255,.14)"/><circle cx="50" cy="50" r="39" fill="url(#kkg)"/><g fill="rgba(235,255,220,.45)" stroke="rgba(255,255,255,.8)" stroke-width="1"><rect x="27" y="30" width="17" height="17" rx="3.5" transform="rotate(-15 35 38)"/><rect x="50" y="55" width="17" height="17" rx="3.5" transform="rotate(22 58 63)"/></g><path d="M58 22c10 3 15 12 12 22-6-2-10 2-12 8-6-8-6-20 0-30z" fill="#2f7d22" stroke="#1f5a16" stroke-width="1.2"/><path d="M58 24c4 8 6 16 4 26" fill="none" stroke="#7cc04a" stroke-width="1.1"/><circle cx="36" cy="64" r="9" fill="#f6e37a" stroke="#d9b931" stroke-width="2"/><path d="M36 56v16M28 64h16" stroke="#e8cf55" stroke-width="1"/><circle cx="66" cy="42" r="4.2" fill="#1b1b1b" stroke="#444" stroke-width="1"/><circle cx="50" cy="50" r="45" fill="url(#glass)"/><path d="M22 34a36 36 0 0 1 16-16" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <symbol id="bract" viewBox="0 0 24 24"><path d="M12 22.5C6.2 19.6 2.4 13.8 3.8 8.4 5.2 3.6 9.6 1.6 12 1.6s6.8 2 8.2 6.8c1.4 5.4-2.4 11.2-8.2 14.1z"/><path d="M12 21.5V4.2M12 16.5c-2.6-1.6-4.6-4.3-5.4-7.4M12 16.5c2.6-1.6 4.6-4.3 5.4-7.4M12 11.4c-1.6-1-2.8-2.6-3.3-4.6M12 11.4c1.6-1 2.8-2.6 3.3-4.6" fill="none" stroke="rgba(255,235,245,.38)" stroke-width=".55" stroke-linecap="round"/></symbol>
+</defs></svg>
+<div id="deck" aria-hidden="true"></div>
 <div id="scrim"></div>
 <div id="fx" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -297,7 +361,6 @@ function cls(c){
   const cnt={};r.forEach(x=>cnt[x]=(cnt[x]||0)+1);
   const g=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
   if(st&&fl)return{n,t:5,k:[s[4]],name:'Straight flush'};
-  if(g[0][1]===4)return{n,t:4,k:[+g[0][0]],name:'Four of a kind'};
   if(st)return{n,t:1,k:[s[4]],name:'Straight'};
   return null;
 }
@@ -315,7 +378,7 @@ function desc(k,c){
     case 'Straight':return 'Straight to '+cname(s[4]);
     case 'Flush':return SG[Su(s[0])]+' flush, '+RK[R(s[4])]+' high';
     case 'Full house':return 'Full house, '+RKP[k.k[0]];
-    case 'Four of a kind':return 'Four '+RKP[k.k[0]]+(c.length===5?' + 1':'');
+    case 'Four of a kind':return 'Four '+RKP[k.k[0]];
     default:return 'Straight flush to '+cname(s[4]);
   }
 }
@@ -346,7 +409,6 @@ function canBeat(pool,L){
   const ok=(t,k)=>t>L.t||(t===L.t&&cmpK(k,L.k)>0);
   const has=new Set(pool);
   for(let s=0;s<4;s++)for(let top=4;top<=11;top++){let f=true;for(let r=top-4;r<=top;r++)if(!has.has(r*4+s)){f=false;break}if(f&&ok(5,[top*4+s]))return true}
-  if(g.some(([r,a])=>a.length===4&&ok(4,[r])))return true;
   for(let top=4;top<=11;top++){let f=true;for(let r=top-4;r<=top;r++)if(!by[r]){f=false;break}if(f&&ok(1,[Math.max(...by[top])]))return true}
   return false;
 }
@@ -385,7 +447,7 @@ function deal(S){
   const total=n<4?13*n:52;
   S.hands=seats.map(()=>[]);
   for(let k=0;k<total;k++)S.hands[(start+k)%n].push(d[k]);
-  S.dealStart=start;
+  S.dealStart=start;S.played=[];
   // Every card dealt has a 1 in 8192 chance to be shiny. Purely cosmetic.
   S.shiny=d.slice(0,total).filter(()=>rnd(SHINY_ODDS)===0);
   S.hands.forEach(h=>h.sort(asc));
@@ -431,7 +493,7 @@ function over(S){
 function play(S,seat,c){
   const e=valid(S,seat,c);if(e)return e;
   S.hands[seat]=S.hands[seat].filter(x=>!c.includes(x));
-  S.last={s:seat,c:[...c].sort(asc)};S.first=false;S.pc++;
+  S.last={s:seat,c:[...c].sort(asc)};S.first=false;S.pc++;(S.played||(S.played=[])).push(...c);
   logp(S,{s:seat,c:S.last.c});
   if(!S.hands[seat].length){S.out.push(seat);logp(S,{s:seat,o:S.out.length})}
   if(!over(S)){
@@ -497,40 +559,99 @@ function apply(S,uid,a){
   }
   return false;
 }
+/* ---------- bots ----------
+   The bots plan their whole hand instead of grabbing the strongest play.
+   - They split the hand into the set of plays that leaves the fewest weak leftovers,
+     counting how many tricks each play can still win given only what has been played so far
+     (no peeking at other hands).
+   - A card or combo nobody can beat any more is a "boss". Bosses are kept to win the lead back,
+     so a pair of 2s is usually worth more as two separate winning singles.
+   - When following, they compare playing each option with passing, and only spend a strong
+     card when it is worth it: to stop someone close to going out, to take the lead when they
+     can run out their hand, or when the card would not be useful later anyway. */
+function unseenFor(S,seat){
+  const mine=new Set(S.hands[seat]),gone=new Set(S.played||[]);
+  const u=[];for(let x=0;x<52;x++)if(!mine.has(x)&&!gone.has(x))u.push(x);
+  return u;
+}
+function strength(k,c,unseen){
+  if(!canBeat(unseen,k))return 1;
+  const R0=R(Math.max(...c));
+  const cnt={};unseen.forEach(x=>cnt[R(x)]=(cnt[R(x)]||0)+1);
+  if(k.n===1){const hi=unseen.filter(x=>x>k.k[0]).length;return Math.max(0,1-hi/11)*.88}
+  if(k.n===2){let b=0;for(let r=R0+1;r<13;r++)if((cnt[r]||0)>=2)b++;return Math.max(0,1-b/5)*.88}
+  if(k.n===3){let b=0;for(let r=R0+1;r<13;r++)if((cnt[r]||0)>=3)b++;return Math.max(0,1-b/3)*.9}
+  if(k.n===4)return .7;
+  return k.t>=4?.85:.55+R0/60;
+}
+function planner(h,unseen){
+  const idx=new Map(h.map((x,i)=>[x,i]));
+  const all=combos(h).map(o=>{let m=0;o.c.forEach(x=>m|=1<<idx.get(x));return{...o,m,s:strength(o.k,o.c,unseen)}});
+  all.forEach(o=>o.cost=1-BOTP.bw*o.s);
+  const byLow=h.map(()=>[]);
+  all.forEach(o=>{let lo=0;while(!(o.m>>lo&1))lo++;byLow[lo].push(o)});
+  const memo=new Map();
+  function best(mask){
+    if(!mask)return 0;
+    if(memo.has(mask))return memo.get(mask).v;
+    let lo=0;while(!(mask>>lo&1))lo++;
+    let bv=Infinity,bc=null;
+    for(const o of byLow[lo]){if((o.m&mask)!==o.m)continue;const v=o.cost+best(mask&~o.m);if(v<bv){bv=v;bc=o}}
+    memo.set(mask,{v:bv,c:bc});return bv;
+  }
+  function plan(mask){const out=[];best(mask);while(mask){const p=memo.get(mask).c;out.push(p);mask&=~p.m}return out}
+  return {all,best,plan,full:(1<<h.length)-1};
+}
+const BOTP={bw:2,pass:.55,lead:.25,leadS:.3,boss:.85,run:1.5,shed:.15,thr2:2.4,thr4:.8,perOpp:.6};
 function botPick(S,seat){
   const h=S.hands[seat];
-  let list=combos(h);
-  if(S.first)list=list.filter(x=>x.c.includes(S.low));
-  const opp=Math.min(...S.hands.map((x,i)=>i!==seat&&x.length?x.length:99));
-  const threat=opp<=2;
-  const str=x=>x.k.n<5?Math.max(...x.c):52+x.k.t*14+R(Math.max(...x.c));
-  const cnt={};h.forEach(x=>cnt[R(x)]=(cnt[R(x)]||0)+1);
+  const unseen=unseenFor(S,seat);
+  const P=planner(h,unseen);
+  const opps=S.hands.map((x,i)=>i!==seat&&x.length?x.length:99);
+  const oppMin=Math.min(...opps);
   if(!S.last){
-    const all=list.find(x=>x.c.length===h.length);if(all)return all.c;
-    let cand=list;
-    if(opp===1){const m=list.filter(x=>x.c.length>1);cand=m.length?m:[list.reduce((a,b)=>str(b)>str(a)?b:a)]}
-    else{const lo=S.first?S.low:h[0];const m=list.filter(x=>x.c.includes(lo));if(m.length)cand=m}
-    cand=[...cand].sort((a,b)=>{
-      const pa=a.c.some(x=>R(x)>=11)&&a.c.length>1?1:0,pb=b.c.some(x=>R(x)>=11)&&b.c.length>1?1:0;
-      return pa-pb||b.c.length-a.c.length||str(a)-str(b);
-    });
+    // Leading.
+    const whole=P.all.find(o=>o.c.length===h.length);if(whole)return whole.c;
+    if(S.first){
+      const opts=P.all.filter(o=>o.c.includes(S.low));
+      opts.sort((a,b)=>(a.cost+P.best(P.full&~a.m))-(b.cost+P.best(P.full&~b.m))||b.c.length-a.c.length);
+      return opts[0].c;
+    }
+    const plan=P.plan(P.full);
+    const boss=plan.filter(o=>o.s===1),libs=plan.filter(o=>o.s<1);
+    // Can run the hand out: cash the winners, keep one weak play for last.
+    if(boss.length&&libs.length<=1)return boss.sort((a,b)=>b.c.length-a.c.length)[0].c;
+    let cand=libs.length?libs:plan;
+    // Someone is about to go out: don't hand them an easy single (or pair).
+    if(oppMin===1){const m=cand.filter(o=>o.c.length>1);if(m.length)cand=m;else{const all=plan.slice().sort((a,b)=>b.s-a.s);return all[0].c}}
+    else if(oppMin===2){const m=cand.filter(o=>o.c.length!==2);if(m.length)cand=m}
+    cand=cand.slice().sort((a,b)=>(a.s-.05*a.c.length)-(b.s-.05*b.c.length));
     return cand[0].c;
   }
+  // Following.
   const L=cls(S.last.c);
-  let cand=list.filter(x=>x.k.n===L.n&&beats(x.k,L));
+  let cand=P.all.filter(o=>o.k.n===L.n&&beats(o.k,L));
+  if(S.first)cand=cand.filter(o=>o.c.includes(S.low));
   if(!cand.length)return null;
-  const fin=cand.find(x=>x.c.length===h.length);if(fin)return fin.c;
-  if(threat&&L.n===1)return cand.reduce((a,b)=>str(b)>str(a)?b:a).c;
-  const sc=x=>{
-    let v=str(x);
-    if(x.k.n<5&&x.c.some(y=>cnt[R(y)]>x.c.filter(z=>R(z)===R(y)).length))v+=12;
-    if(!threat&&h.length>4&&x.c.some(y=>R(y)===12))v+=25;
-    if(x.k.n===5&&x.c.some(y=>R(y)>=11))v+=6;
-    return v;
-  };
-  cand.sort((a,b)=>sc(a)-sc(b));
-  if(!threat&&h.length>5&&L.n<5&&sc(cand[0])>58)return null;
-  return cand[0].c;
+  const fin=cand.find(o=>o.c.length===h.length);if(fin)return fin.c;
+  // Someone has one card left and this is a single: block with the highest single.
+  if(L.n===1&&oppMin===1)return cand.reduce((a,b)=>a.c[0]>b.c[0]?a:b).c;
+  const base=P.best(P.full);
+  let passV=base+BOTP.pass;
+  if(oppMin<=2)passV+=BOTP.thr2;else if(oppMin<=4)passV+=BOTP.thr4;
+  if(h.length<=4)passV+=.4;
+  passV+=BOTP.perOpp*(opps.filter(x=>x<99).length-1);
+  let bestC=null,bestV=Infinity;
+  for(const o of cand){
+    const after=P.best(P.full&~o.m);
+    const lead=(o.s===1?BOTP.boss:BOTP.lead+BOTP.leadS*o.s)+BOTP.shed*o.c.length;
+    // Winning the lead is worth most when the rest of the hand can then be run out.
+    const rest=P.plan(P.full&~o.m),restLibs=rest.filter(x=>x.s<1).length;
+    const runOut=o.s===1&&restLibs<=1?BOTP.run:0;
+    const v=after-lead-runOut;
+    if(v<bestV){bestV=v;bestC=o}
+  }
+  return bestV<=passV?bestC.c:null;
 }
 
 const $=s=>document.querySelector(s);
@@ -557,7 +678,8 @@ const tab=Math.random().toString(36).slice(2,10);
 let mode='practice',P=null,S=null,online=false,connected=false,es=null;
 let myUid=null,myName='',profs={},loaded=false,pend=null,off=0;
 const order={P:{g:-1,ids:[]},S:{g:-1,ids:[]}};let drag=null,noClick=false,deferred=false,lastTick=-1,lastDid=null,rxOpen=false;
-let shinySet=new Set(),dealFx=null;const lastAnimDid={P:null,S:null};
+let shinySet=new Set(),dealFx=null;
+let tableLook=(()=>{try{return localStorage.getItem('b2table')||'classic'}catch(e){return 'classic'}})();const lastAnimDid={P:null,S:null};
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
 const rem=dl=>Math.max(0,dl-(Date.now()+(mode==='practice'?0:off)));
 const secs=dl=>Math.ceil(rem(dl)/1000);
@@ -690,7 +812,7 @@ function trickH(st,list,anim){
     return `<div class="trick${anim?' anim':''}"><div class="cards">${st.last.c.map(c=>cardH(c)).join('')}</div><div class="tl">${esc(desc(k,st.last.c))} <small>· ${esc(nameOf(st,st.seats[st.last.s].id))}</small></div>${pas.length?`<div class="sub">Passed: ${esc(pas.join(', '))}</div>`:''}</div>`;
   }
   const ld=nameOf(st,st.seats[st.turn].id),pv=st.prev;
-  if(st.first||!pv)return `<div class="trick"><div class="lead">${st.first?`${esc(ld)} ${V(ld,'leads','lead')} with the ${esc(cname(st.low))}`:`${esc(ld)} ${V(ld,'leads','lead')}`}</div><div class="sub">${st.first?'First play has to include it':'Any single, pair, triple or five-card hand'}</div></div>`;
+  if(st.first||!pv)return `<div class="trick"><div class="lead">${st.first?`${esc(ld)} ${V(ld,'leads','lead')} with the ${esc(cname(st.low))}`:`${esc(ld)} ${V(ld,'leads','lead')}`}</div><div class="sub">${st.first?'First play has to include it':'Any single, pair, triple, four of a kind or straight'}</div></div>`;
   const wn=nameOf(st,st.seats[pv.s].id);
   return `<div class="trick${anim?' anim':''}"><div class="cards won">${pv.c.map(c=>cardH(c)).join('')}</div><div class="tl">${esc(wn)} ${V(wn,'takes','take')} the round <small>· ${esc(desc(cls(pv.c),pv.c))}</small></div><div class="sub">${pv.auto?'Nobody could beat it, so everyone passed. ':''}${esc(ld)} ${V(ld,'leads','lead')} anything.</div></div>`;
 }
@@ -704,6 +826,74 @@ function overH(st){
   <div class="row"><button class="btn pri" type="button" data-a="deal"${canD&&!pending()?'':' disabled'}>${canD?'Shuffle and deal':'Waiting for '+esc(nm)+' to shuffle'}</button>${mode==='online'&&mine?'<button class="btn sm" type="button" data-a="lobby">Change seats</button>':''}${mode==='online'&&!mine?`<button class="btn sm" type="button" data-a="sit"${st.lobby.length>=MAX_SEATS?' disabled':''}>Sit down</button>`:''}</div></div>`;
 }
 function orKey(){return mode==='practice'?'P':'S'}
+/* ---------- table looks ---------- */
+function setTable(v){tableLook=v==='bodrum'?'bodrum':'classic';document.documentElement.dataset.table=tableLook;try{localStorage.setItem('b2table',tableLook)}catch(e){}render()}
+let petalCache='';
+// Kuzu kulağı, espresso martini, gin & tonic and two little bowls of mixed nuts, seen from above.
+function nutBowl(seed,rim,inner){
+  let s=seed;const r=()=>(s=s*16807%2147483647)/2147483647;
+  let nuts='';
+  for(let i=0;i<24;i++){
+    const a=r()*Math.PI*2,d=Math.sqrt(r())*28,x=(50+Math.cos(a)*d).toFixed(1),y=(50+Math.sin(a)*d).toFixed(1),rot=(r()*180).toFixed(0),t=r();
+    if(t<.3)nuts+=`<ellipse cx="${x}" cy="${y}" rx="7.5" ry="4.2" fill="#9a5f2c" stroke="#6b3c17" stroke-width=".8" transform="rotate(${rot} ${x} ${y})"/>`;
+    else if(t<.55)nuts+=`<path d="M${x-7} ${y}q7-9 14 0q-2 3-4 1q-3-4-6 0q-2 2-4-1z" fill="#ecd3a2" stroke="#c49a5c" stroke-width=".8" transform="rotate(${rot} ${x} ${y})"/>`;
+    else if(t<.78)nuts+=`<circle cx="${x}" cy="${y}" r="5" fill="#8e5530" stroke="#5e3416" stroke-width=".8"/><circle cx="${x-1.5}" cy="${y-1.5}" r="1.4" fill="#c98a5a"/>`;
+    else nuts+=`<ellipse cx="${x}" cy="${y}" rx="5.5" ry="3.6" fill="#d7a868" stroke="#a87a3c" stroke-width=".8" transform="rotate(${rot} ${x} ${y})"/>`;
+  }
+  return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="${rim}"/><circle cx="50" cy="50" r="40" fill="${inner}"/><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="4"/>${nuts}<path d="M16 34a38 38 0 0 1 18-20" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="3" stroke-linecap="round"/></svg>`;
+}
+function drinksH(){
+  const g=(cl,id)=>`<svg class="dec ${cl}" viewBox="0 0 100 100"><use href="#${id}"/></svg>`;
+  return g('d-mart','d-mart')+g('d-gt','d-gt')+g('d-kk','d-kk')
+    +`<span class="dec d-n1">${nutBowl(5,'#f1ebe1','#e3d9ca')}</span><span class="dec d-n2">${nutBowl(9,'#2f6fa6','#e9eef4')}</span>`;
+}
+function petalsH(){
+  if(tableLook!=='bodrum')return '';
+  if(petalCache)return petalCache;
+  let s=11;const r=()=>(s=s*16807%2147483647)/2147483647;
+  const one=(x,y,sz,rot,g,op)=>`<svg style="left:${x}%;top:${y}%;width:${sz}px;height:${sz}px;transform:translate(-50%,-50%) rotate(${rot}deg);opacity:${op}"><use href="#bract" fill="url(#pg${g})"/></svg>`;
+  let out='';
+  for(let i=0;i<11;i++){
+    let x,y;const e=r();
+    // Along the top edge and the sides, away from your hand and buttons at the bottom.
+    if(e<.4){x=r()*100;y=r()*8}else if(e<.65){x=r()*7;y=r()*70}else if(e<.9){x=93+r()*7;y=r()*70}else{x=20+r()*60;y=12+r()*45}
+    const sz=14+r()*16,rot=r()*360,g=1+Math.floor(r()*3),op=(.75+r()*.25).toFixed(2);
+    if(r()<.2){for(let k=0;k<3;k++)out+=one(x,y,sz,rot+k*120,g,op)}else out+=one(x.toFixed(1),y.toFixed(1),sz.toFixed(0),rot.toFixed(0),g,op);
+  }
+  return petalCache=`<div class="petals" aria-hidden="true">${out}${drinksH()}</div>`;
+}
+function deckH(){
+  let s=3;const r=()=>(s=s*16807%2147483647)/2147483647;
+  const W=Math.max(innerWidth,400),H=Math.max(innerHeight,400),n=Math.round(W*H/9000);
+  let out='';
+  for(let i=0;i<n;i++){
+    const x=(r()*100).toFixed(1),y=(r()*100).toFixed(1),rot=(r()*360).toFixed(0),leaf=r()<.22;
+    const sz=leaf?(16+r()*14):(12+r()*14),g=leaf?(1+Math.floor(r()*2)):(1+Math.floor(r()*3));
+    const use=leaf?`<use href="#leaf" fill="url(#lf${g})"/>`:`<use href="#bract" fill="url(#pg${g})"/>`;
+    if(!leaf&&r()<.15){for(let k=0;k<3;k++)out+=`<svg style="left:${x}%;top:${y}%;width:${sz.toFixed(0)}px;height:${sz.toFixed(0)}px;transform:translate(-50%,-50%) rotate(${+rot+k*120}deg)">${use}</svg>`}
+    else out+=`<svg style="left:${x}%;top:${y}%;width:${sz.toFixed(0)}px;height:${sz.toFixed(0)}px;transform:translate(-50%,-50%) rotate(${rot}deg);opacity:${(.8+r()*.2).toFixed(2)}">${use}</svg>`;
+  }
+  return out;
+}
+let deckSize='';
+function paintDeck(){const k=Math.round(innerWidth/200)+'x'+Math.round(innerHeight/200);if(k===deckSize)return;deckSize=k;const d=$('#deck');if(d)d.innerHTML=deckH()}
+addEventListener('resize',()=>{clearTimeout(paintDeck.t);paintDeck.t=setTimeout(paintDeck,200)});
+paintDeck();
+function dropPetal(){
+  if(tableLook!=='bodrum'||reduceMotion.matches||document.hidden||screen!=='table')return;
+  const fx=$('#fx');if(!fx)return;
+  const W=innerWidth,H=innerHeight,x=W*(.08+Math.random()*.84),sw=(Math.random()<.5?-1:1)*(30+Math.random()*50),rot=Math.random()*360,g=1+Math.floor(Math.random()*3);
+  const el=document.createElementNS('http://www.w3.org/2000/svg','svg');el.setAttribute('class','fall');
+  el.innerHTML=`<use href="#bract" fill="url(#pg${g})"/>`;fx.appendChild(el);
+  const d=9000+Math.random()*5000;
+  const an=el.animate([
+    {transform:`translate(${x}px,-40px) rotate(${rot}deg)`,opacity:0},
+    {transform:`translate(${x+sw}px,${H*.3}px) rotate(${rot+120}deg)`,opacity:.95,offset:.3},
+    {transform:`translate(${x-sw*.6}px,${H*.65}px) rotate(${rot+230}deg)`,opacity:.9,offset:.65},
+    {transform:`translate(${x+sw*.4}px,${H+40}px) rotate(${rot+340}deg)`,opacity:0}],{duration:d,easing:'linear'});
+  an.onfinish=()=>el.remove();setTimeout(()=>el.remove(),d+500);
+}
+(function petalLoop(){dropPetal();setTimeout(petalLoop,6000+Math.random()*7000)})();
 /* ---------- dealing animation ---------- */
 function dealtTo(seat){const f=dealFx;if(!f)return null;let c=0;for(let k=0;k<f.i;k++)if((f.start+k)%f.n===seat)c++;return c}
 function dealH(){const f=dealFx,left=f.total-f.i;return `<div class="deal"><div class="deck" aria-hidden="true">${'<span class="back"></span>'.repeat(Math.max(1,Math.min(6,Math.ceil(left/9))))}</div><div class="tl">Dealing <small>· ${left} card${left===1?'':'s'} left</small></div></div>`}
@@ -794,18 +984,19 @@ function mineH(st,list,mi){
 }
 function menuH(){
   const n=S&&S.here?S.here.length:0,live=S&&S.phase==='play';
-  return `<div class="mid"><div class="mark" aria-hidden="true">鋤大D</div><div class="panel menu"><h2>Big Two</h2><p class="sub">Our house rules: ♣ < ♦ < ♥ < ♠, no flushes or full houses, two to eight players, play until one loser is left. No money, points only.</p>
+  return `<div class="mid"><div class="panel menu"><h2>Big Two</h2><p class="sub">Our house rules: ♣ < ♦ < ♥ < ♠, no flushes or full houses, two to eight players, play until one loser is left. No money, points only.</p>
   <button class="btn pri" type="button" data-a="goOnline"${online?'':' disabled'}>Play online with friends</button>
   <p class="sub">${online?(connected?`${n} ${n===1?'person':'people'} at the table now${live?', a hand is in progress':''}`:'Connecting to the table…'):'Online play works when the game runs on its server.'}</p>
   <button class="btn" type="button" data-a="goPractice">Practice vs bots</button>
+  <p class="sub" style="margin-top:4px">Table</p><div class="looks" role="group" aria-label="Table look"><button class="look" type="button" data-a="table" data-v="classic" aria-pressed="${tableLook==='classic'}"><i class="sw-classic"></i>Classic felt</button><button class="look" type="button" data-a="table" data-v="bodrum" aria-pressed="${tableLook==='bodrum'}"><i class="sw-bodrum"></i>Bodrum</button></div>
   <button class="btn sm" type="button" data-a="rules">House rules</button></div></div>`;
 }
 function renderTable(){
   const t=$('#table');{const s0=cur();shinySet=new Set((s0&&s0.shiny)||[])}
-  if(screen==='menu'){t.innerHTML=menuH();return}
+  if(screen==='menu'){t.innerHTML=petalsH()+menuH();return}
   const st=cur();
   if(!st){
-    t.innerHTML=`<div class="mid"><div class="mark" aria-hidden="true">鋤大D</div><div class="panel"><h2>${loaded?'The table is not open yet':'Joining the table'}</h2><p class="sub">${loaded?'Could not reach the game server. Check the link, or practise against bots meanwhile.':'Connecting to the game server. If it was asleep this can take up to a minute.'}</p><button class="btn pri" type="button" data-a="practice">Practice vs bots</button></div></div>`;
+    t.innerHTML=`<div class="mid"><div class="panel"><h2>${loaded?'The table is not open yet':'Joining the table'}</h2><p class="sub">${loaded?'Could not reach the game server. Check the link, or practise against bots meanwhile.':'Connecting to the game server. If it was asleep this can take up to a minute.'}</p><button class="btn pri" type="button" data-a="practice">Practice vs bots</button></div></div>`;
     return;
   }
   const list=seatsFor(st),n=Math.max(list.length,1),mi=list.findIndex(s=>s.id===me()),view=mi<0?0:mi;
@@ -823,11 +1014,11 @@ function renderTable(){
   let ban='';
   if(mode==='online'&&!connected&&loaded)ban='<div class="banner">Reconnecting to the table…</div>';
   const rs='';
-  t.innerHTML=`${rs}<div class="top">${areas.top}</div><div class="left">${areas.left}</div><div class="right">${areas.right}</div><div class="mid"><div class="mark" aria-hidden="true">鋤大D</div>${ban}${mid}</div><div class="mine">${areas.me}${mineH(st,list,mi)}</div>`;
+  t.innerHTML=`${petalsH()}${rs}<div class="top">${areas.top}</div><div class="left">${areas.left}</div><div class="right">${areas.right}</div><div class="mid">${ban}${mid}</div><div class="mine">${areas.me}${mineH(st,list,mi)}</div>`;
 }
 function renderSide(){
   const st=screen==='menu'?S:cur(),sd=$('#side');
-  if(!st){sd.innerHTML=`<div class="sheetbar"><div class="row"><button class="btn sm" type="button" data-a="rules">Rules</button><button class="btn sm" type="button" data-a="sound">${sound?'Sound on':'Sound off'}</button></div><button class="btn sm pri" type="button" data-a="sheet">Close</button></div>`;return}
+  if(!st){sd.innerHTML=`<div class="sheetbar"><div class="row"><button class="btn sm" type="button" data-a="rules">Rules</button><button class="btn sm" type="button" data-a="table">${tableLook==='bodrum'?'Table: Bodrum':'Table: Classic'}</button><button class="btn sm" type="button" data-a="sound">${sound?'Sound on':'Sound off'}</button></div><button class="btn sm pri" type="button" data-a="sheet">Close</button></div>`;return}
   const rows=Object.entries(st.scores||{}).sort((a,b)=>b[1].pen-a[1].pen||b[1].loss-a[1].loss);
   const sc=rows.length?`<table><thead><tr><th>Player</th><th class="n">Losses</th><th class="n">Points</th></tr></thead><tbody>${rows.map(([id,v],i)=>`<tr${i===0&&v.pen>0?' class="worst"':''}><td>${esc(nameOf(st,id))}</td><td class="n">${v.loss} / ${v.games}</td><td class="n">${v.pen}</td></tr>`).join('')}</tbody></table>`:'<p class="sub">No losers yet. Give it one hand.</p>';
   const canReset=rows.length&&(mode==='practice'||st.phase!=='play');
@@ -845,7 +1036,7 @@ function renderSide(){
     return '';
   }).join('');
   const cb=(x,l,y)=>`<button class="btn sm${armed===x?' armed':''}" type="button" data-a="${x}">${armed===x?y:l}</button>`;
-  const bar=`<div class="sheetbar"><div class="row">${screen==='table'?cb('quit','Quit','Sure? Quit')+(mode==='practice'?cb('restart','Restart','Sure? Restart'):''):''}<button class="btn sm" type="button" data-a="rules">Rules</button><button class="btn sm" type="button" data-a="sound">${sound?'Sound on':'Sound off'}</button></div><button class="btn sm pri" type="button" data-a="sheet">Close</button></div>`;
+  const bar=`<div class="sheetbar"><div class="row">${screen==='table'?cb('quit','Quit','Sure? Quit')+(mode==='practice'?cb('restart','Restart','Sure? Restart'):''):''}<button class="btn sm" type="button" data-a="rules">Rules</button><button class="btn sm" type="button" data-a="table">${tableLook==='bodrum'?'Table: Bodrum':'Table: Classic'}</button><button class="btn sm" type="button" data-a="sound">${sound?'Sound on':'Sound off'}</button></div><button class="btn sm pri" type="button" data-a="sheet">Close</button></div>`;
   sd.innerHTML=bar+`<div class="box"><h3>Hall of shame</h3><p class="sub">Loser takes a point per card left. Most points is worst.</p>${sc}${canReset?`<p style="margin:10px 0 0"><button class="btn sm${armed==='reset'?' armed':''}" type="button" data-a="reset">${armed==='reset'?'Sure? Reset':'Reset scores'}</button></p>`:''}</div>${here}<div class="box"><h3>Play by play</h3>${log?`<ol class="log">${log}</ol>`:'<p class="sub">Nothing played yet.</p>'}</div>`;
 }
 function renderTop(){
@@ -858,6 +1049,7 @@ function renderTop(){
   $('#modeBtn').hidden=true;
   const cb=(a,l,s)=>`<button class="btn sm${armed===a?' armed':''}" type="button" data-a="${a}">${armed===a?s:l}</button>`;
   $('#gameBtns').innerHTML=screen==='table'?cb('quit','Quit','Sure? Quit')+(mode==='practice'?cb('restart','Restart','Sure? Restart'):''):'';
+  const tb=$('#tableBtn');if(tb)tb.textContent=tableLook==='bodrum'?'Table: Bodrum':'Table: Classic';
   const sb=$('#soundBtn');sb.textContent=sound?'Sound on':'Sound off';sb.setAttribute('aria-pressed',String(sound));
 }
 function fitHand(){
@@ -888,6 +1080,7 @@ document.addEventListener('click',ev=>{
   const st=cur(),A=b.dataset.a;
   if(A==='clear'){sel.clear();render();return}
   if(A==='rxtoggle'){rxOpen=!rxOpen;render();return}
+  if(A==='table'){setTable(b.dataset.v||(tableLook==='bodrum'?'classic':'bodrum'));return}
   if(A==='sheet'){document.body.classList.toggle('sheet');return}
   if(A==='sound'){sound=!sound;savePrefs();render();return}
   if((A==='restart'||A==='quit'||A==='reset')&&armed!==A){armed=A;render();clearTimeout(armT);armT=setTimeout(()=>{armed='';render()},3000);return}
@@ -901,7 +1094,7 @@ document.addEventListener('click',ev=>{
   if(A==='goOnline'){mode='online';screen='table';sel.clear();render();return}
   if(A==='practice'||A==='goPractice'){newPractice();mode='practice';screen='table';sel.clear();render();return}
   if(A==='rules'){document.body.classList.remove('sheet');const d=$('#rules');try{d.showModal()}catch(e){d.setAttribute('open','')}return}
-  if(A==='hint'){const list=seatsFor(st),mi=list.findIndex(s=>s.id===me());if(mi<0)return;const p=botPick(st,mi);if(!p){sel.clear();toast('Nothing you hold beats it. Pass.')}else sel=new Set(p);render();return}
+  if(A==='hint'){const list=seatsFor(st),mi=list.findIndex(s=>s.id===me());if(mi<0)return;const p=botPick(st,mi);if(!p){sel.clear();const L=st.last&&cls(st.last.c),can=L&&combos(st.hands[mi]).some(o=>o.k.n===L.n&&beats(o.k,L));toast(can?'Hint: pass and save your strong cards for later.':'Nothing you hold beats it. Pass.')}else sel=new Set(p);render();return}
   if(A==='play'){const c=[...sel];act({t:'play',c});return}
   if(A==='sit'){const n=$('#nick');act({t:'sit',name:n?n.value:(st&&st.nick&&st.nick[me()])||myName});return}
   act({t:A});

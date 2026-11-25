@@ -21,7 +21,6 @@ function cls(c){
   const cnt={};r.forEach(x=>cnt[x]=(cnt[x]||0)+1);
   const g=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
   if(st&&fl)return{n,t:5,k:[s[4]],name:'Straight flush'};
-  if(g[0][1]===4)return{n,t:4,k:[+g[0][0]],name:'Four of a kind'};
   if(st)return{n,t:1,k:[s[4]],name:'Straight'};
   return null;
 }
@@ -39,7 +38,7 @@ function desc(k,c){
     case 'Straight':return 'Straight to '+cname(s[4]);
     case 'Flush':return SG[Su(s[0])]+' flush, '+RK[R(s[4])]+' high';
     case 'Full house':return 'Full house, '+RKP[k.k[0]];
-    case 'Four of a kind':return 'Four '+RKP[k.k[0]]+(c.length===5?' + 1':'');
+    case 'Four of a kind':return 'Four '+RKP[k.k[0]];
     default:return 'Straight flush to '+cname(s[4]);
   }
 }
@@ -70,7 +69,6 @@ function canBeat(pool,L){
   const ok=(t,k)=>t>L.t||(t===L.t&&cmpK(k,L.k)>0);
   const has=new Set(pool);
   for(let s=0;s<4;s++)for(let top=4;top<=11;top++){let f=true;for(let r=top-4;r<=top;r++)if(!has.has(r*4+s)){f=false;break}if(f&&ok(5,[top*4+s]))return true}
-  if(g.some(([r,a])=>a.length===4&&ok(4,[r])))return true;
   for(let top=4;top<=11;top++){let f=true;for(let r=top-4;r<=top;r++)if(!by[r]){f=false;break}if(f&&ok(1,[Math.max(...by[top])]))return true}
   return false;
 }
@@ -109,7 +107,7 @@ function deal(S){
   const total=n<4?13*n:52;
   S.hands=seats.map(()=>[]);
   for(let k=0;k<total;k++)S.hands[(start+k)%n].push(d[k]);
-  S.dealStart=start;
+  S.dealStart=start;S.played=[];
   // Every card dealt has a 1 in 8192 chance to be shiny. Purely cosmetic.
   S.shiny=d.slice(0,total).filter(()=>rnd(SHINY_ODDS)===0);
   S.hands.forEach(h=>h.sort(asc));
@@ -155,7 +153,7 @@ function over(S){
 function play(S,seat,c){
   const e=valid(S,seat,c);if(e)return e;
   S.hands[seat]=S.hands[seat].filter(x=>!c.includes(x));
-  S.last={s:seat,c:[...c].sort(asc)};S.first=false;S.pc++;
+  S.last={s:seat,c:[...c].sort(asc)};S.first=false;S.pc++;(S.played||(S.played=[])).push(...c);
   logp(S,{s:seat,c:S.last.c});
   if(!S.hands[seat].length){S.out.push(seat);logp(S,{s:seat,o:S.out.length})}
   if(!over(S)){
@@ -221,40 +219,99 @@ function apply(S,uid,a){
   }
   return false;
 }
+/* ---------- bots ----------
+   The bots plan their whole hand instead of grabbing the strongest play.
+   - They split the hand into the set of plays that leaves the fewest weak leftovers,
+     counting how many tricks each play can still win given only what has been played so far
+     (no peeking at other hands).
+   - A card or combo nobody can beat any more is a "boss". Bosses are kept to win the lead back,
+     so a pair of 2s is usually worth more as two separate winning singles.
+   - When following, they compare playing each option with passing, and only spend a strong
+     card when it is worth it: to stop someone close to going out, to take the lead when they
+     can run out their hand, or when the card would not be useful later anyway. */
+function unseenFor(S,seat){
+  const mine=new Set(S.hands[seat]),gone=new Set(S.played||[]);
+  const u=[];for(let x=0;x<52;x++)if(!mine.has(x)&&!gone.has(x))u.push(x);
+  return u;
+}
+function strength(k,c,unseen){
+  if(!canBeat(unseen,k))return 1;
+  const R0=R(Math.max(...c));
+  const cnt={};unseen.forEach(x=>cnt[R(x)]=(cnt[R(x)]||0)+1);
+  if(k.n===1){const hi=unseen.filter(x=>x>k.k[0]).length;return Math.max(0,1-hi/11)*.88}
+  if(k.n===2){let b=0;for(let r=R0+1;r<13;r++)if((cnt[r]||0)>=2)b++;return Math.max(0,1-b/5)*.88}
+  if(k.n===3){let b=0;for(let r=R0+1;r<13;r++)if((cnt[r]||0)>=3)b++;return Math.max(0,1-b/3)*.9}
+  if(k.n===4)return .7;
+  return k.t>=4?.85:.55+R0/60;
+}
+function planner(h,unseen){
+  const idx=new Map(h.map((x,i)=>[x,i]));
+  const all=combos(h).map(o=>{let m=0;o.c.forEach(x=>m|=1<<idx.get(x));return{...o,m,s:strength(o.k,o.c,unseen)}});
+  all.forEach(o=>o.cost=1-BOTP.bw*o.s);
+  const byLow=h.map(()=>[]);
+  all.forEach(o=>{let lo=0;while(!(o.m>>lo&1))lo++;byLow[lo].push(o)});
+  const memo=new Map();
+  function best(mask){
+    if(!mask)return 0;
+    if(memo.has(mask))return memo.get(mask).v;
+    let lo=0;while(!(mask>>lo&1))lo++;
+    let bv=Infinity,bc=null;
+    for(const o of byLow[lo]){if((o.m&mask)!==o.m)continue;const v=o.cost+best(mask&~o.m);if(v<bv){bv=v;bc=o}}
+    memo.set(mask,{v:bv,c:bc});return bv;
+  }
+  function plan(mask){const out=[];best(mask);while(mask){const p=memo.get(mask).c;out.push(p);mask&=~p.m}return out}
+  return {all,best,plan,full:(1<<h.length)-1};
+}
+const BOTP={bw:2,pass:.55,lead:.25,leadS:.3,boss:.85,run:1.5,shed:.15,thr2:2.4,thr4:.8,perOpp:.6};
 function botPick(S,seat){
   const h=S.hands[seat];
-  let list=combos(h);
-  if(S.first)list=list.filter(x=>x.c.includes(S.low));
-  const opp=Math.min(...S.hands.map((x,i)=>i!==seat&&x.length?x.length:99));
-  const threat=opp<=2;
-  const str=x=>x.k.n<5?Math.max(...x.c):52+x.k.t*14+R(Math.max(...x.c));
-  const cnt={};h.forEach(x=>cnt[R(x)]=(cnt[R(x)]||0)+1);
+  const unseen=unseenFor(S,seat);
+  const P=planner(h,unseen);
+  const opps=S.hands.map((x,i)=>i!==seat&&x.length?x.length:99);
+  const oppMin=Math.min(...opps);
   if(!S.last){
-    const all=list.find(x=>x.c.length===h.length);if(all)return all.c;
-    let cand=list;
-    if(opp===1){const m=list.filter(x=>x.c.length>1);cand=m.length?m:[list.reduce((a,b)=>str(b)>str(a)?b:a)]}
-    else{const lo=S.first?S.low:h[0];const m=list.filter(x=>x.c.includes(lo));if(m.length)cand=m}
-    cand=[...cand].sort((a,b)=>{
-      const pa=a.c.some(x=>R(x)>=11)&&a.c.length>1?1:0,pb=b.c.some(x=>R(x)>=11)&&b.c.length>1?1:0;
-      return pa-pb||b.c.length-a.c.length||str(a)-str(b);
-    });
+    // Leading.
+    const whole=P.all.find(o=>o.c.length===h.length);if(whole)return whole.c;
+    if(S.first){
+      const opts=P.all.filter(o=>o.c.includes(S.low));
+      opts.sort((a,b)=>(a.cost+P.best(P.full&~a.m))-(b.cost+P.best(P.full&~b.m))||b.c.length-a.c.length);
+      return opts[0].c;
+    }
+    const plan=P.plan(P.full);
+    const boss=plan.filter(o=>o.s===1),libs=plan.filter(o=>o.s<1);
+    // Can run the hand out: cash the winners, keep one weak play for last.
+    if(boss.length&&libs.length<=1)return boss.sort((a,b)=>b.c.length-a.c.length)[0].c;
+    let cand=libs.length?libs:plan;
+    // Someone is about to go out: don't hand them an easy single (or pair).
+    if(oppMin===1){const m=cand.filter(o=>o.c.length>1);if(m.length)cand=m;else{const all=plan.slice().sort((a,b)=>b.s-a.s);return all[0].c}}
+    else if(oppMin===2){const m=cand.filter(o=>o.c.length!==2);if(m.length)cand=m}
+    cand=cand.slice().sort((a,b)=>(a.s-.05*a.c.length)-(b.s-.05*b.c.length));
     return cand[0].c;
   }
+  // Following.
   const L=cls(S.last.c);
-  let cand=list.filter(x=>x.k.n===L.n&&beats(x.k,L));
+  let cand=P.all.filter(o=>o.k.n===L.n&&beats(o.k,L));
+  if(S.first)cand=cand.filter(o=>o.c.includes(S.low));
   if(!cand.length)return null;
-  const fin=cand.find(x=>x.c.length===h.length);if(fin)return fin.c;
-  if(threat&&L.n===1)return cand.reduce((a,b)=>str(b)>str(a)?b:a).c;
-  const sc=x=>{
-    let v=str(x);
-    if(x.k.n<5&&x.c.some(y=>cnt[R(y)]>x.c.filter(z=>R(z)===R(y)).length))v+=12;
-    if(!threat&&h.length>4&&x.c.some(y=>R(y)===12))v+=25;
-    if(x.k.n===5&&x.c.some(y=>R(y)>=11))v+=6;
-    return v;
-  };
-  cand.sort((a,b)=>sc(a)-sc(b));
-  if(!threat&&h.length>5&&L.n<5&&sc(cand[0])>58)return null;
-  return cand[0].c;
+  const fin=cand.find(o=>o.c.length===h.length);if(fin)return fin.c;
+  // Someone has one card left and this is a single: block with the highest single.
+  if(L.n===1&&oppMin===1)return cand.reduce((a,b)=>a.c[0]>b.c[0]?a:b).c;
+  const base=P.best(P.full);
+  let passV=base+BOTP.pass;
+  if(oppMin<=2)passV+=BOTP.thr2;else if(oppMin<=4)passV+=BOTP.thr4;
+  if(h.length<=4)passV+=.4;
+  passV+=BOTP.perOpp*(opps.filter(x=>x<99).length-1);
+  let bestC=null,bestV=Infinity;
+  for(const o of cand){
+    const after=P.best(P.full&~o.m);
+    const lead=(o.s===1?BOTP.boss:BOTP.lead+BOTP.leadS*o.s)+BOTP.shed*o.c.length;
+    // Winning the lead is worth most when the rest of the hand can then be run out.
+    const rest=P.plan(P.full&~o.m),restLibs=rest.filter(x=>x.s<1).length;
+    const runOut=o.s===1&&restLibs<=1?BOTP.run:0;
+    const v=after-lead-runOut;
+    if(v<bestV){bestV=v;bestC=o}
+  }
+  return bestV<=passV?bestC.c:null;
 }
 
 if(typeof module!=='undefined'&&module.exports)module.exports={fresh,apply,deal,play,pass,valid,botPick,cls,desc,clean,seatOf,canDeal,preview,clock};
