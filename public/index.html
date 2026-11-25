@@ -208,10 +208,19 @@ dialog ul{padding-left:20px;margin:0 0 14px}dialog li{margin:5px 0}
 :root[data-table=bodrum] header .pill,:root[data-table=bodrum] header .btn:not(.pri){background:rgba(30,26,24,.7)}
 :root[data-table=bodrum] aside .box{background:rgba(26,22,20,.92)}
 .petals{position:absolute;inset:0;overflow:hidden;border-radius:inherit;pointer-events:none;z-index:0}
+.petals .dec.d-ash{left:25%;top:10%;width:68px;height:68px;transform:translate(-50%,-50%) rotate(-50deg)}
+.petals .dec svg.smoke{position:absolute;inset:0;width:100%;height:100%}.petals .dec.d-ash2{left:72%;top:10%;width:60px;height:60px;transform:translate(-50%,-50%) rotate(20deg)}
+.smoke{position:absolute;inset:0;overflow:visible;pointer-events:none}
+.smoke path{fill:none;stroke:rgba(240,240,240,.55);stroke-width:2.2;stroke-linecap:round;filter:blur(1.2px);animation:smoke 4.2s linear infinite;transform-box:fill-box;transform-origin:0 100%;opacity:0}
+.smoke path:nth-child(2){animation-delay:-1.4s;stroke-width:3}.smoke path:nth-child(3){animation-delay:-2.8s;stroke-width:1.8}
+@keyframes smoke{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:.75}70%{opacity:.25}100%{opacity:0;transform:translate(14px,-26px) scale(1.6) rotate(-14deg)}}
+.emb{animation:emb 2.6s ease-in-out infinite}
+@keyframes emb{50%{opacity:.6}}
+@media(max-width:600px){.petals .dec.d-ash{left:9%;top:53%;width:44px;height:44px}.petals .dec.d-ash2{display:none}}
 .petals .dec svg{position:static;width:100%;height:100%;filter:none;display:block}
 .petals .dec{position:absolute;filter:drop-shadow(3px 6px 4px rgba(40,15,0,.45));transform:translate(-50%,-50%)}
-.d-mart{left:7.5%;top:13%;width:84px;height:84px}.d-n1{left:16%;top:7.5%;width:58px;height:58px}
-.d-gt{left:92.5%;top:13%;width:90px;height:90px}.d-kk{left:83.5%;top:8%;width:74px;height:74px}.d-n2{left:83%;top:24%;width:54px;height:54px}
+.d-mart{left:7.5%;top:13%;width:84px;height:84px}.d-n1{left:16%;top:8%;width:66px;height:66px}
+.d-gt{left:92.5%;top:13%;width:90px;height:90px}.d-kk{left:83.5%;top:8%;width:74px;height:74px}.d-n2{left:83%;top:25%;width:62px;height:62px}
 @media(max-width:600px){.d-mart{left:9%;top:30%;width:48px;height:48px}.d-n1{left:9%;top:41%;width:38px;height:38px}.d-gt{left:91%;top:30%;width:50px;height:50px}.d-kk{left:91%;top:41.5%;width:44px;height:44px}.d-n2{left:91%;top:52%;width:36px;height:36px}}
 .petals svg{position:absolute;overflow:visible;filter:drop-shadow(0 2px 2px rgba(30,0,10,.45))}
 #fx .fall{position:absolute;top:0;left:0;width:22px;height:22px;overflow:visible;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
@@ -330,6 +339,21 @@ body.sheet #scrim{display:block}
   <symbol id="d-mart" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="rgba(255,255,255,.12)"/><circle cx="50" cy="50" r="40" fill="#2a1408"/><circle cx="50" cy="50" r="36" fill="url(#crema)"/><g fill="#2b1408" stroke="#7a4a26" stroke-width="1"><ellipse cx="44" cy="45" rx="6.5" ry="4.5" transform="rotate(-30 44 45)"/><ellipse cx="56" cy="47" rx="6.5" ry="4.5" transform="rotate(25 56 47)"/><ellipse cx="50" cy="57" rx="6.5" ry="4.5" transform="rotate(95 50 57)"/></g><g stroke="#8a5a35" stroke-width=".9"><path d="M40 47.5l8-5M52 45l8 4.5M50.7 51l-1.4 11"/></g><circle cx="50" cy="50" r="47" fill="url(#glass)"/><path d="M22 28a36 36 0 0 1 20-14" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.5" stroke-linecap="round"/></symbol>
   <symbol id="d-gt" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="rgba(255,255,255,.14)"/><circle cx="50" cy="50" r="42" fill="url(#gtg)"/><g fill="rgba(255,255,255,.55)" stroke="rgba(255,255,255,.85)" stroke-width="1"><rect x="24" y="24" width="20" height="20" rx="4" transform="rotate(12 34 34)"/><rect x="55" y="58" width="19" height="19" rx="4" transform="rotate(-18 64 67)"/><rect x="26" y="57" width="17" height="17" rx="4" transform="rotate(30 34 65)"/></g><circle cx="61" cy="38" r="14" fill="#cde77a" stroke="#6f9a2a" stroke-width="3"/><g stroke="#8fb43c" stroke-width="1.3"><path d="M61 25v26M48 38h26M52 29l18 18M70 29L52 47"/></g><circle cx="61" cy="38" r="3" fill="#f4f9d8"/><g fill="#2c3550"><circle cx="45" cy="50" r="2.6"/><circle cx="49" cy="53" r="2.4"/><circle cx="44" cy="55" r="2.3"/></g><g fill="none" stroke="rgba(255,255,255,.8)" stroke-width=".9"><circle cx="38" cy="47" r="1.4"/><circle cx="70" cy="56" r="1.2"/><circle cx="52" cy="72" r="1.5"/><circle cx="33" cy="40" r="1"/></g><circle cx="50" cy="50" r="47" fill="url(#glass)"/><path d="M20 32a38 38 0 0 1 18-16" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5" stroke-linecap="round"/></symbol>
   <symbol id="d-kk" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="rgba(255,255,255,.14)"/><circle cx="50" cy="50" r="39" fill="url(#kkg)"/><g fill="rgba(235,255,220,.45)" stroke="rgba(255,255,255,.8)" stroke-width="1"><rect x="27" y="30" width="17" height="17" rx="3.5" transform="rotate(-15 35 38)"/><rect x="50" y="55" width="17" height="17" rx="3.5" transform="rotate(22 58 63)"/></g><path d="M58 22c10 3 15 12 12 22-6-2-10 2-12 8-6-8-6-20 0-30z" fill="#2f7d22" stroke="#1f5a16" stroke-width="1.2"/><path d="M58 24c4 8 6 16 4 26" fill="none" stroke="#7cc04a" stroke-width="1.1"/><circle cx="36" cy="64" r="9" fill="#f6e37a" stroke="#d9b931" stroke-width="2"/><path d="M36 56v16M28 64h16" stroke="#e8cf55" stroke-width="1"/><circle cx="66" cy="42" r="4.2" fill="#1b1b1b" stroke="#444" stroke-width="1"/><circle cx="50" cy="50" r="45" fill="url(#glass)"/><path d="M22 34a36 36 0 0 1 16-16" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <radialGradient id="nAlm" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#c98a52"/><stop offset=".6" stop-color="#9a5a2a"/><stop offset="1" stop-color="#6a3815"/></radialGradient>
+  <radialGradient id="nCash" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fbeccb"/><stop offset=".7" stop-color="#e7c992"/><stop offset="1" stop-color="#c49b5e"/></radialGradient>
+  <radialGradient id="nHaz" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#c98550"/><stop offset=".65" stop-color="#8e4f25"/><stop offset="1" stop-color="#5a2d10"/></radialGradient>
+  <radialGradient id="nPis" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#f6ead2"/><stop offset=".7" stop-color="#ddc69c"/><stop offset="1" stop-color="#b39868"/></radialGradient>
+  <radialGradient id="nLeb" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffe7a1"/><stop offset=".7" stop-color="#e5b955"/><stop offset="1" stop-color="#b58428"/></radialGradient>
+  <radialGradient id="bowlIn" cx=".5" cy=".45" r=".55"><stop offset=".55" stop-color="rgba(0,0,0,0)"/><stop offset="1" stop-color="rgba(0,0,0,.28)"/></radialGradient>
+  <radialGradient id="ashGlass" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="rgba(235,245,250,.55)"/><stop offset=".7" stop-color="rgba(170,190,200,.35)"/><stop offset="1" stop-color="rgba(90,110,120,.55)"/></radialGradient>
+  <radialGradient id="ember" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff2b0"/><stop offset=".35" stop-color="#ff8a2a"/><stop offset=".8" stop-color="#d12f0a"/><stop offset="1" stop-color="rgba(160,20,0,0)"/></radialGradient>
+  <g id="nut-alm"><path d="M0-8.5C4.5-6.5 5.5 2 0 8.5-5.5 2-4.5-6.5 0-8.5z" fill="url(#nAlm)" stroke="#5a2e10" stroke-width=".5"/><path d="M-1.5-5 -2 3M1.2-4.5 1.5 4M0-6.5V6" stroke="rgba(60,25,5,.35)" stroke-width=".5" fill="none"/></g>
+  <g id="nut-cash"><path d="M-7-1.5C-7.5-7.5 2.5-9.5 6.5-4.5 9-1 7 4.5 3.5 3.5 1 2.8 2.2-1.5-.8-1.8-4-2-3.8 3.4-6 3.4-8 3.4-7-.2-7-1.5z" fill="url(#nCash)" stroke="#b68a4c" stroke-width=".5"/></g>
+  <g id="nut-haz"><circle r="5.6" fill="url(#nHaz)" stroke="#4a2408" stroke-width=".5"/><ellipse cx="-1" cy="-3.2" rx="3.6" ry="2.2" fill="#d9a774" opacity=".75"/><circle cx="2.2" cy="2.4" r=".7" fill="#3a1a06"/></g>
+  <g id="nut-pis"><ellipse rx="6.6" ry="4.6" fill="url(#nPis)" stroke="#a88a58" stroke-width=".5"/><path d="M-5.6 0C-2-1.6 2-1.6 5.6 0C2 1.4-2 1.4-5.6 0z" fill="#7a9a3a"/><path d="M-3.4-.2C-1 .6 1 .6 3.4-.2" stroke="#8a3c5a" stroke-width=".7" fill="none"/></g>
+  <g id="nut-leb"><circle r="3.8" fill="url(#nLeb)" stroke="#a87a24" stroke-width=".45"/><path d="M-1.2-1.8a2 2 0 0 1 2.2 .3" stroke="#fff3c4" stroke-width=".7" fill="none"/></g>
+  <symbol id="ashtray" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="url(#ashGlass)" stroke="rgba(255,255,255,.55)" stroke-width="1.5"/><circle cx="50" cy="50" r="31" fill="rgba(45,42,40,.45)" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/><g fill="rgba(30,28,26,.55)"><rect x="46" y="2" width="8" height="18" rx="3"/><rect x="46" y="2" width="8" height="18" rx="3" transform="rotate(120 50 50)"/><rect x="46" y="2" width="8" height="18" rx="3" transform="rotate(240 50 50)"/></g><path d="M36 50c2-8 10-12 18-9s12 9 9 15-12 10-19 7-9-7-8-13z" fill="#8f8c88"/><g fill="#5f5c59"><circle cx="45" cy="52" r="1.4"/><circle cx="55" cy="47" r="1.1"/><circle cx="50" cy="58" r="1.3"/><circle cx="58" cy="55" r=".9"/><circle cx="42" cy="46" r="1"/></g><g transform="rotate(-25 50 50)"><rect x="36" y="58" width="16" height="5" rx="1.5" fill="#f2ede3"/><rect x="47" y="58" width="7" height="5" rx="1" fill="#d98b3a"/><path d="M36 58.5c-2 1-2 3 0 4" stroke="#6b6866" stroke-width="2" fill="none"/></g><g transform="rotate(35 50 50)"><rect x="54" y="38" width="13" height="5" rx="1.5" fill="#f2ede3"/><rect x="62" y="38" width="7" height="5" rx="1" fill="#cf8436"/><circle cx="54" cy="40.5" r="2.4" fill="#5f5c59"/></g><path d="M18 26a38 38 0 0 1 20-18" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <symbol id="cig" viewBox="0 0 100 100" overflow="visible"><g transform="rotate(-90 50 50)"><ellipse cx="78" cy="51.5" rx="30" ry="4" fill="rgba(0,0,0,.25)"/><rect x="47" y="46.5" width="58" height="7" rx="1.5" fill="#f5f1e8" stroke="#d8d1c2" stroke-width=".5"/><rect x="90" y="46.5" width="15" height="7" rx="1.2" fill="#d58a3c"/><g fill="#b36a28"><circle cx="93" cy="48.5" r=".6"/><circle cx="97" cy="51" r=".6"/><circle cx="101" cy="48.7" r=".6"/><circle cx="95.5" cy="52" r=".5"/></g><rect x="90" y="46.5" width="1.2" height="7" fill="#e9c27a"/><rect x="38" y="46.8" width="10" height="6.4" rx="1.2" fill="#9a9792"/><path d="M39 47.5h8M39 50h8M39 52.5h8" stroke="#bdbab4" stroke-width=".5"/><circle class="emb" cx="38.5" cy="50" r="4.8" fill="url(#ember)"/></g></symbol>
   <symbol id="bract" viewBox="0 0 24 24"><path d="M12 22.5C6.2 19.6 2.4 13.8 3.8 8.4 5.2 3.6 9.6 1.6 12 1.6s6.8 2 8.2 6.8c1.4 5.4-2.4 11.2-8.2 14.1z"/><path d="M12 21.5V4.2M12 16.5c-2.6-1.6-4.6-4.3-5.4-7.4M12 16.5c2.6-1.6 4.6-4.3 5.4-7.4M12 11.4c-1.6-1-2.8-2.6-3.3-4.6M12 11.4c1.6-1 2.8-2.6 3.3-4.6" fill="none" stroke="rgba(255,235,245,.38)" stroke-width=".55" stroke-linecap="round"/></symbol>
 </defs></svg>
 <div id="deck" aria-hidden="true"></div>
@@ -830,26 +854,34 @@ function orKey(){return mode==='practice'?'P':'S'}
 function setTable(v){tableLook=v==='bodrum'?'bodrum':'classic';document.documentElement.dataset.table=tableLook;try{localStorage.setItem('b2table',tableLook)}catch(e){}render()}
 let petalCache='';
 // Kuzu kulağı, espresso martini, gin & tonic and two little bowls of mixed nuts, seen from above.
-function nutBowl(seed,rim,inner){
+function nutBowl(seed,rim,inner,pattern){
+  // A proper Turkish kuruyemiş mix: pistachios, hazelnuts, almonds, cashews and leblebi, piled up.
   let s=seed;const r=()=>(s=s*16807%2147483647)/2147483647;
-  let nuts='';
-  for(let i=0;i<24;i++){
-    const a=r()*Math.PI*2,d=Math.sqrt(r())*28,x=(50+Math.cos(a)*d).toFixed(1),y=(50+Math.sin(a)*d).toFixed(1),rot=(r()*180).toFixed(0),t=r();
-    if(t<.3)nuts+=`<ellipse cx="${x}" cy="${y}" rx="7.5" ry="4.2" fill="#9a5f2c" stroke="#6b3c17" stroke-width=".8" transform="rotate(${rot} ${x} ${y})"/>`;
-    else if(t<.55)nuts+=`<path d="M${x-7} ${y}q7-9 14 0q-2 3-4 1q-3-4-6 0q-2 2-4-1z" fill="#ecd3a2" stroke="#c49a5c" stroke-width=".8" transform="rotate(${rot} ${x} ${y})"/>`;
-    else if(t<.78)nuts+=`<circle cx="${x}" cy="${y}" r="5" fill="#8e5530" stroke="#5e3416" stroke-width=".8"/><circle cx="${x-1.5}" cy="${y-1.5}" r="1.4" fill="#c98a5a"/>`;
-    else nuts+=`<ellipse cx="${x}" cy="${y}" rx="5.5" ry="3.6" fill="#d7a868" stroke="#a87a3c" stroke-width=".8" transform="rotate(${rot} ${x} ${y})"/>`;
+  const kinds=['pis','pis','haz','alm','cash','leb','leb','haz','alm','cash'];
+  const items=[];
+  for(let i=0;i<46;i++){
+    const a=i*2.39996+r()*.5,d=Math.sqrt((i+.5)/46)*29+r()*2,x=50+Math.cos(a)*d,y=50+Math.sin(a)*d;
+    items.push({x,y,k:kinds[Math.floor(r()*kinds.length)],rot:r()*360,sc:.95+r()*.25});
   }
-  return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="${rim}"/><circle cx="50" cy="50" r="40" fill="${inner}"/><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="4"/>${nuts}<path d="M16 34a38 38 0 0 1 18-20" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="3" stroke-linecap="round"/></svg>`;
+  items.sort((p,q)=>(q.x-50)**2+(q.y-50)**2-((p.x-50)**2+(p.y-50)**2)); // outer ones first, the pile rises in the middle
+  const nuts=items.map(o=>`<g transform="translate(${o.x.toFixed(1)} ${o.y.toFixed(1)}) rotate(${o.rot.toFixed(0)}) scale(${o.sc.toFixed(2)})"><ellipse cx="1" cy="1.6" rx="6" ry="4" fill="rgba(40,20,5,.22)"/><use href="#nut-${o.k}"/></g>`).join('');
+  const dots=pattern?[...Array(18).keys()].map(k=>{const a=k/18*Math.PI*2;return `<circle cx="${(50+Math.cos(a)*44).toFixed(1)}" cy="${(50+Math.sin(a)*44).toFixed(1)}" r="1.6" fill="#f4f7fb"/>`}).join(''):'';
+  return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="${rim}"/>${dots}<circle cx="50" cy="50" r="40" fill="${inner}"/><circle cx="50" cy="50" r="40" fill="url(#bowlIn)"/>${nuts}<circle cx="50" cy="50" r="40" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="2"/><path d="M13 36a39 39 0 0 1 20-23" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/></svg>`;
+}
+function ashH(cl,lit){
+  const t=-(Date.now()%4200)/1000;
+  // The smoke animation keeps its place across redraws, so it drifts continuously.
+  const smoke=lit?`<svg class="smoke" viewBox="0 0 100 100" style="--t:${t}s"><path d="M50 60c-4-6 4-10 0-16s4-10 1-15" style="animation-delay:${t}s"/><path d="M51 58c3-6-4-9 1-15s-2-10 2-14" style="animation-delay:${t-1.4}s"/><path d="M49 59c-3-5 3-8-1-13" style="animation-delay:${t-2.8}s"/></svg>`:'';
+  return `<span class="dec ${cl}"><svg viewBox="0 0 100 100"><use href="#ashtray"/>${lit?'<use href="#cig"/>':''}</svg>${smoke}</span>`;
 }
 function drinksH(){
   const g=(cl,id)=>`<svg class="dec ${cl}" viewBox="0 0 100 100"><use href="#${id}"/></svg>`;
   return g('d-mart','d-mart')+g('d-gt','d-gt')+g('d-kk','d-kk')
-    +`<span class="dec d-n1">${nutBowl(5,'#f1ebe1','#e3d9ca')}</span><span class="dec d-n2">${nutBowl(9,'#2f6fa6','#e9eef4')}</span>`;
+    +`<span class="dec d-n1">${nutBowl(5,'#f3eee6','#e8e0d2')}</span><span class="dec d-n2">${nutBowl(9,'#2b67a0','#eef2f7',true)}</span>`;
 }
 function petalsH(){
   if(tableLook!=='bodrum')return '';
-  if(petalCache)return petalCache;
+  if(petalCache)return petalCache+ashH('d-ash',true)+ashH('d-ash2',false)+'</div>';
   let s=11;const r=()=>(s=s*16807%2147483647)/2147483647;
   const one=(x,y,sz,rot,g,op)=>`<svg style="left:${x}%;top:${y}%;width:${sz}px;height:${sz}px;transform:translate(-50%,-50%) rotate(${rot}deg);opacity:${op}"><use href="#bract" fill="url(#pg${g})"/></svg>`;
   let out='';
@@ -860,7 +892,8 @@ function petalsH(){
     const sz=14+r()*16,rot=r()*360,g=1+Math.floor(r()*3),op=(.75+r()*.25).toFixed(2);
     if(r()<.2){for(let k=0;k<3;k++)out+=one(x,y,sz,rot+k*120,g,op)}else out+=one(x.toFixed(1),y.toFixed(1),sz.toFixed(0),rot.toFixed(0),g,op);
   }
-  return petalCache=`<div class="petals" aria-hidden="true">${out}${drinksH()}</div>`;
+  petalCache=`<div class="petals" aria-hidden="true">${out}${drinksH()}`;
+  return petalCache+ashH('d-ash',true)+ashH('d-ash2',false)+'</div>';
 }
 function deckH(){
   let s=3;const r=()=>(s=s*16807%2147483647)/2147483647;
